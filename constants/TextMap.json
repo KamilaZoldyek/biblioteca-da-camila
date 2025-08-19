@@ -1,5 +1,11 @@
 {
   "homeScreen": {
-    "hello": "Hello"
+    "hello": "Hello!",
+    "title": "Home",
+    "screenName": "HomeScreen"
+  },
+  "configsScreen": {
+    "title": "Configurações",
+    "screenName": "ConfigsScreen"
   }
 }

@@ -1,3 +1,4 @@
+import { TextMap } from "@/constants";
 import { Colors } from "@/constants/Colors";
 import {
   DarkTheme as NavigationDarkTheme,
@@ -45,13 +46,16 @@ export default function RootLayout() {
           ]}
         >
           <Stack
-            initialRouteName="HomeScreen"
+            initialRouteName={TextMap.homeScreen.screenName}
             screenOptions={{ headerShown: false }}
           >
-            <Stack.Screen name="HomeScreen" options={{ title: "Home" }} />
             <Stack.Screen
-              name="ConfigsScreen"
-              options={{ title: "Configurações" }}
+              name={TextMap.homeScreen.screenName}
+              options={{ title: TextMap.homeScreen.title }}
+            />
+            <Stack.Screen
+              name={TextMap.configsScreen.screenName}
+              options={{ title: TextMap.configsScreen.title }}
             />
           </Stack>
         </View>
