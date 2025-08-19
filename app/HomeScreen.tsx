@@ -1,5 +1,5 @@
 import { Container } from "@/components";
-import { TextMap } from "@/constants/";
+import { Strings } from "@/constants/";
 import { router } from "expo-router";
 import * as React from "react";
 import { StyleSheet } from "react-native";
@@ -19,7 +19,7 @@ export default function HomeScreen() {
         onPressIconLeft={handleConfigScreen}
       >
         <Text variant="displaySmall" style={styles.header}>
-          {TextMap.homeScreen.hello}
+          {Strings.homeScreen.hello}
         </Text>
       </Container>
     </>

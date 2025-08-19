@@ -1,4 +1,4 @@
-import { TextMap } from "@/constants";
+import { Strings } from "@/constants";
 import { Colors } from "@/constants/Colors";
 import {
   DarkTheme as NavigationDarkTheme,
@@ -13,6 +13,7 @@ import {
   MD3DarkTheme,
   PaperProvider,
 } from "react-native-paper";
+import { pt, registerTranslation } from "react-native-paper-dates";
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
   reactNavigationLight: NavigationDefaultTheme,
@@ -27,6 +28,7 @@ const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  registerTranslation('pt', pt);
 
   const paperTheme =
     colorScheme === "light" ? CombinedDefaultTheme : CombinedDarkTheme;
@@ -46,16 +48,20 @@ export default function RootLayout() {
           ]}
         >
           <Stack
-            initialRouteName={TextMap.homeScreen.screenName}
+            initialRouteName={Strings.homeScreen.screenName}
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen
-              name={TextMap.homeScreen.screenName}
-              options={{ title: TextMap.homeScreen.title }}
+              name={Strings.homeScreen.screenName}
+              options={{ title: Strings.homeScreen.title }}
             />
             <Stack.Screen
-              name={TextMap.configsScreen.screenName}
-              options={{ title: TextMap.configsScreen.title }}
+              name={Strings.configsScreen.screenName}
+              options={{ title: Strings.configsScreen.title }}
+            />
+             <Stack.Screen
+              name={Strings.loginScreen.screenName}
+              options={{ title: Strings.loginScreen.title, headerShown: false }}
             />
           </Stack>
         </View>
