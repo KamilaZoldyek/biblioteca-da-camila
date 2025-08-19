@@ -85,3 +85,5 @@ export const Colors = {
     "backdrop": "rgba(51, 47, 55, 0.4)"
   },
 };
+
+export default Colors;
