@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { Text } from 'react-native-paper';
 import * as React from 'react';
 
-export default function Index() {
+export default function LoginScreen() {
   return (
       <View
         style={{
