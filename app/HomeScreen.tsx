@@ -9,6 +9,9 @@ export default function HomeScreen() {
   function handleConfigScreen() {
     router.navigate("/ConfigsScreen");
   }
+   function handleAboutScreen() {
+    router.navigate("/AboutScreen");
+  }
   return (
     <>
       {/* DEIXE o title vazio para alinhar os ícones a direita! */}
@@ -17,6 +20,7 @@ export default function HomeScreen() {
         iconLeft="cog"
         iconRight="information"
         onPressIconLeft={handleConfigScreen}
+        onPressIconRight={handleAboutScreen}
       >
         <Text variant="displaySmall" style={styles.header}>
           {Strings.homeScreen.hello}

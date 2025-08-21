@@ -1,6 +1,11 @@
 import { Container } from "@/components";
 import { Dimensions, Strings } from "@/constants/";
+import {
+  setStoredThemeData,
+  storedThemeDataOrColorScheme,
+} from "@/Storage/ThemeData";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { Appearance, StyleSheet, useColorScheme, View } from "react-native";
 import { Button, Switch, Text } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
@@ -8,12 +13,30 @@ import { TimePickerModal } from "react-native-paper-dates";
 export default function ConfigsScreen() {
   const colorScheme = useColorScheme();
 
-  const [isDarkModeOn, setIsDarkModeOn] = React.useState(
-    colorScheme === Strings.configsScreen.dark
-  );
+  const [isDarkModeOn, setIsDarkModeOn] = React.useState(true);
   const [visible, setVisible] = React.useState(false);
   const [hour, setHour] = React.useState(12);
   const [minutes, setMinutes] = React.useState(30);
+  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+
+  useEffect(() => {
+    storedThemeDataOrColorScheme(colorScheme).then((mode) => {
+      setTheme(mode);
+      setIsDarkModeOn(mode === "dark");
+    });
+  }, [colorScheme, setTheme, setIsDarkModeOn]);
+
+  const onToggleDarkMode = () => {
+    if (theme === "light") {
+      setIsDarkModeOn(true);
+      Appearance.setColorScheme("dark");
+      setStoredThemeData("dark");
+    } else if (theme === "dark") {
+      setIsDarkModeOn(false);
+      Appearance.setColorScheme("light");
+      setStoredThemeData("light");
+    }
+  };
 
   const onDismiss = React.useCallback(() => {
     setVisible(false);
@@ -27,18 +50,6 @@ export default function ConfigsScreen() {
     },
     [setVisible]
   );
-
-  const onToggleDarkMode = () => {
-    if (colorScheme === Strings.configsScreen.light) {
-      setIsDarkModeOn(true);
-      Appearance.setColorScheme("dark");
-      
-    } else {
-       setIsDarkModeOn(false);
-      Appearance.setColorScheme("light");
-     
-    }
-  }; //TODO async storage pra guardar isso aqui
 
   return (
     <Container title={Strings.configsScreen.title} showGoBack>
@@ -63,9 +74,7 @@ export default function ConfigsScreen() {
         </View>
       </View>
       <View style={styles.darkModeSection}>
-        <Text variant="titleMedium" >
-          {Strings.configsScreen.darkMode}
-        </Text>
+        <Text variant="titleMedium">{Strings.configsScreen.darkMode}</Text>
         <Switch value={isDarkModeOn} onValueChange={onToggleDarkMode}></Switch>
       </View>
 
