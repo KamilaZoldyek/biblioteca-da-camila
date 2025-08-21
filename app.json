@@ -33,6 +33,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/montserrat/500Medium/Montserrat_500Medium.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {

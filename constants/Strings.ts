@@ -14,13 +14,23 @@ export const Strings = {
     darkMode: "Modo escuro",
     timePickerLabel: "Escolha um horário",
     timePickerCancelLabel: "Cancelar",
-    dark: "dark",
-    light: "light",
   },
   loginScreen: {
     screenName: "LoginScreen",
     title: "Login",
   },
+  aboutScreen: {
+    screenName: 'AboutScreen',
+    title: 'Sobre o app',
+    appName: 'Biblioteca da Camila',
+    appVersion: 'Versão: MVP',
+    githubTitle: 'GitHub',
+    githubDesc: 'Veja o código do projeto',
+    instagramTitle: 'Instagram da Camila',
+    instagramDesc:'Eu posto desenhos lá',
+    complaintsTitle: 'Departamento de reclamações',
+    complaintsDesc: 'Envie seu feedback'
+  }
 };
 
 export default Strings;
