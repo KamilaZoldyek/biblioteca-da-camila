@@ -1,4 +1,4 @@
-import { Dimensions, Strings } from "@/constants/";
+import { Strings } from "@/constants/";
 import { Image } from "expo-image";
 import * as React from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
