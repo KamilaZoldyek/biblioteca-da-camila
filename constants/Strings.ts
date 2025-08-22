@@ -3,6 +3,9 @@ export const Strings = {
     hello: "Hello!",
     title: "Home",
     screenName: "HomeScreen",
+    fabAdd: 'Adicionar',
+    fabLogin: 'Login',
+    search: 'Pesquise uma obra',
   },
   configsScreen: {
     title: "Configurações",

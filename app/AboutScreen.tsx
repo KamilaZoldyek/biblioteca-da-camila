@@ -28,7 +28,7 @@ export default function AboutScreen() {
   };
 
   const onPressComplaints = async () => {
-    await Linking.openURL("instagram://user?username=kamila_zoldyek");
+    await Linking.openURL("instagram://user?username=kamila_zoldyek"); //TODO: mudar para a URL do form
   };
 
   return (
