@@ -17,7 +17,6 @@ export default function HomeScreen() {
   const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [clearTag, setClearTag] = useState(false);
 
   const collections = getCollectionsFromBookList(mockBookList);
 
@@ -108,7 +107,7 @@ export default function HomeScreen() {
           </Text>
         )}
         <View style={styles.tags}>
-          <TagList onPress={(tag) => setSelectedTag(tag)}  />
+          <TagList onPress={(tag) => setSelectedTag(tag)} />
         </View>
 
         {/* <SectionList
