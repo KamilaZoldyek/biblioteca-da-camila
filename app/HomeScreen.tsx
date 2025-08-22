@@ -1,4 +1,4 @@
-import { Container } from "@/components";
+import { Container, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Dimensions, Strings } from "@/constants/";
 import {
@@ -10,16 +10,18 @@ import { router } from "expo-router";
 import * as React from "react";
 import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { Searchbar, Text } from "react-native-paper";
+import { ActivityIndicator, Searchbar, Text } from "react-native-paper";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [clearTag, setClearTag] = useState(false);
 
   const collections = getCollectionsFromBookList(mockBookList);
 
   const handleConfigScreen = () => {
-    console.log(collections);
     router.navigate("/ConfigsScreen");
   };
   const handleAboutScreen = () => {
@@ -27,10 +29,10 @@ export default function HomeScreen() {
   };
 
   const handleSearch = (query: string) => {
-    query = query.trim();
+    setSelectedTag("");
     setShouldShowResult(true);
     setSearchQuery(query);
-    if(query === ''){
+    if (query === "") {
       setShouldShowResult(false);
     }
   };
@@ -39,14 +41,43 @@ export default function HomeScreen() {
     const result: BookList = [];
     mockBookList.map((item) => {
       if (
-        item.title.includes(searchQuery) ||
-        item.author.includes(searchQuery) ||
-        item.collection.includes(searchQuery)
+        item.title
+          .toLocaleLowerCase()
+          .includes(searchQuery.toLocaleLowerCase()) ||
+        item.author
+          .toLocaleLowerCase()
+          .includes(searchQuery.toLocaleLowerCase()) ||
+        item.collection
+          .toLocaleLowerCase()
+          .includes(searchQuery.toLocaleLowerCase())
       ) {
         result.push(item);
       }
     });
     return result;
+  };
+
+  const findAllBooksByTag = (tag: string) => {
+    const result: BookList = [];
+    mockBookList.map((item) => {
+      item.tags.map((i) => {
+        if (i === tag) {
+          result.push(item);
+        }
+      });
+    });
+
+    return result;
+  };
+
+  const whatDatabaseToUse = () => {
+    if (shouldShowResult) {
+      return findItem();
+    } else if (selectedTag !== "") {
+      return findAllBooksByTag(selectedTag);
+    }
+
+    return mockBookList;
   };
 
   return (
@@ -66,15 +97,19 @@ export default function HomeScreen() {
           <Searchbar
             onChangeText={handleSearch}
             value={searchQuery}
-            placeholder={Strings.homeScreen.search}
+            placeholder={Strings.homeScreen.searchPlaceholder}
           />
         </View>
 
         {shouldShowResult && (
           <Text variant="bodySmall" style={styles.headerTitle}>
-            Resultados de busca para: {searchQuery}
+            {Strings.homeScreen.searchResultText}
+            {searchQuery}
           </Text>
         )}
+        <View style={styles.tags}>
+          <TagList onPress={(tag) => setSelectedTag(tag)}  />
+        </View>
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll
@@ -90,19 +125,25 @@ export default function HomeScreen() {
             <Text variant="titleLarge">{collectionName}</Text>
           )}
         /> */}
-        <FlatList
-          data={shouldShowResult === true ? findItem() : mockBookList}
-          numColumns={2}
-          renderItem={({ item }) => (
-            <View style={styles.books}>
-              <BookDisplayListItem
-                title={item.title}
-                author={item.author}
-                volume={item.volume}
-              />
-            </View>
-          )}
-        />
+
+        {isLoading ? (
+          //TODO: se vira e arruma o loading, tá zoado
+          <ActivityIndicator animating={true} />
+        ) : (
+          <FlatList
+            data={whatDatabaseToUse()}
+            numColumns={2}
+            renderItem={({ item }) => (
+              <View style={styles.books}>
+                <BookDisplayListItem
+                  title={item.title}
+                  author={item.author}
+                  volume={item.volume}
+                />
+              </View>
+            )}
+          />
+        )}
       </Container>
     </>
   );
@@ -118,5 +159,8 @@ const styles = StyleSheet.create({
   },
   books: {
     paddingHorizontal: Dimensions.padding.flatListItems,
+  },
+  tags: {
+    paddingVertical: Dimensions.padding.halfContainer,
   },
 });
