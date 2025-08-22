@@ -5,7 +5,9 @@ export const Strings = {
     screenName: "HomeScreen",
     fabAdd: 'Adicionar',
     fabLogin: 'Login',
-    search: 'Pesquise uma obra',
+    searchPlaceholder: 'Pesquise uma obra, autor ou coleção',
+    searchResultText: 'Resultados de busca para: '
+    
   },
   configsScreen: {
     title: "Configurações",
