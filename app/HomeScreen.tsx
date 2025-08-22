@@ -1,14 +1,20 @@
 import { Container } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Dimensions, Strings } from "@/constants/";
-import { getCollectionsFromBookList, mockBookList } from "@/constants/mocks";
+import {
+  BookList,
+  getCollectionsFromBookList,
+  mockBookList,
+} from "@/constants/mocks";
 import { router } from "expo-router";
 import * as React from "react";
+import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { Searchbar, Text } from "react-native-paper";
 
 export default function HomeScreen() {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [shouldShowResult, setShouldShowResult] = useState(false);
 
   const collections = getCollectionsFromBookList(mockBookList);
 
@@ -18,6 +24,29 @@ export default function HomeScreen() {
   };
   const handleAboutScreen = () => {
     router.navigate("/AboutScreen");
+  };
+
+  const handleSearch = (query: string) => {
+    query = query.trim();
+    setShouldShowResult(true);
+    setSearchQuery(query);
+    if(query === ''){
+      setShouldShowResult(false);
+    }
+  };
+
+  const findItem = () => {
+    const result: BookList = [];
+    mockBookList.map((item) => {
+      if (
+        item.title.includes(searchQuery) ||
+        item.author.includes(searchQuery) ||
+        item.collection.includes(searchQuery)
+      ) {
+        result.push(item);
+      }
+    });
+    return result;
   };
 
   return (
@@ -35,11 +64,17 @@ export default function HomeScreen() {
             {Strings.homeScreen.hello}
           </Text>
           <Searchbar
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearch}
             value={searchQuery}
             placeholder={Strings.homeScreen.search}
           />
         </View>
+
+        {shouldShowResult && (
+          <Text variant="bodySmall" style={styles.headerTitle}>
+            Resultados de busca para: {searchQuery}
+          </Text>
+        )}
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll
@@ -55,27 +90,17 @@ export default function HomeScreen() {
             <Text variant="titleLarge">{collectionName}</Text>
           )}
         /> */}
-        {/* <FlashList
-          data={mockBookList}
-          masonry
-          numColumns={3}
-          renderItem={({ item }) => (
-            <BookDisplayListItem
-              title={item.title}
-              author={item.author}
-              volume={item.volume}
-            />
-          )}
-        /> */}
         <FlatList
-          data={mockBookList}
+          data={shouldShowResult === true ? findItem() : mockBookList}
           numColumns={2}
           renderItem={({ item }) => (
-            <BookDisplayListItem
-              title={item.title}
-              author={item.author}
-              volume={item.volume}
-            />
+            <View style={styles.books}>
+              <BookDisplayListItem
+                title={item.title}
+                author={item.author}
+                volume={item.volume}
+              />
+            </View>
           )}
         />
       </Container>
@@ -90,5 +115,8 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     paddingBottom: Dimensions.padding.container,
+  },
+  books: {
+    paddingHorizontal: Dimensions.padding.flatListItems,
   },
 });
