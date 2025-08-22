@@ -3,6 +3,7 @@ export const Dimensions = {
     container: 16,
     halfContainer: 8,
     divider: 45,
+    flatListItems: 20,
   },
   margin: {
     divider: 45,
