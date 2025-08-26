@@ -3,11 +3,11 @@ export const Strings = {
     hello: "Hello!",
     title: "Home",
     screenName: "HomeScreen",
-    fabAdd: 'Adicionar',
-    fabLogin: 'Login',
-    searchPlaceholder: 'Pesquise uma obra, autor ou coleção',
-    searchResultText: 'Resultados de busca para: '
-    
+    fabAdd: "Adicionar",
+    fabLogin: "Login",
+    searchPlaceholder: "Pesquise uma obra, autor ou coleção",
+    searchResultText: "Resultados de busca para: ",
+    collections: "Coleções",
   },
   configsScreen: {
     title: "Configurações",
@@ -25,17 +25,17 @@ export const Strings = {
     title: "Login",
   },
   aboutScreen: {
-    screenName: 'AboutScreen',
-    title: 'Sobre o app',
-    appName: 'Biblioteca da Camila',
-    appVersion: 'Versão: MVP',
-    githubTitle: 'GitHub',
-    githubDesc: 'Veja o código do projeto',
-    instagramTitle: 'Instagram da Camila',
-    instagramDesc:'Eu posto desenhos lá',
-    complaintsTitle: 'Departamento de reclamações',
-    complaintsDesc: 'Envie seu feedback'
-  }
+    screenName: "AboutScreen",
+    title: "Sobre o app",
+    appName: "Biblioteca da Camila",
+    appVersion: "Versão: MVP",
+    githubTitle: "GitHub",
+    githubDesc: "Veja o código do projeto",
+    instagramTitle: "Instagram da Camila",
+    instagramDesc: "Eu posto desenhos lá",
+    complaintsTitle: "Departamento de reclamações",
+    complaintsDesc: "Envie seu feedback",
+  },
 };
 
 export default Strings;

@@ -8,15 +8,25 @@ import {
 } from "@/constants/mocks";
 import { router } from "expo-router";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Searchbar, Text } from "react-native-paper";
+import {
+  AnimatedFAB,
+  Chip,
+  Divider,
+  Searchbar,
+  Text,
+} from "react-native-paper";
+import { SectionGrid } from "react-native-super-grid";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showCollections, setShowCollections] = useState(false);
+  const [forceClear, setForceClear] = useState(false);
+  const [isExtended, setIsExtended] = useState(true);
 
   const collections = getCollectionsFromBookList(mockBookList);
 
@@ -79,6 +89,27 @@ export default function HomeScreen() {
     return mockBookList;
   };
 
+  const handleSelectedTag = (tag: string) => {
+    setSelectedTag(tag);
+    setShowCollections(false);
+  };
+
+  useEffect(() => {
+    if (showCollections) {
+      setSelectedTag("");
+      setForceClear(true);
+    }
+  }, [showCollections]);
+
+  const handleFAB = ({ nativeEvent }) => {
+    const currentScrollPosition =
+      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
+
+    setIsExtended(currentScrollPosition <= 0);
+  };
+
+  const collectionChipMode = showCollections && selectedTag === "";
+
   return (
     <>
       {/* DEIXE o title vazio para alinhar os ícones a direita! */}
@@ -107,8 +138,89 @@ export default function HomeScreen() {
           </Text>
         )}
         <View style={styles.tags}>
-          <TagList onPress={(tag) => setSelectedTag(tag)} />
+          <Chip
+            style={styles.collectionChip}
+            onPress={() => setShowCollections(!showCollections)}
+            selected={collectionChipMode}
+            mode={collectionChipMode ? "flat" : "outlined"}
+          >
+            <Text variant="labelLarge">{Strings.homeScreen.collections}</Text>
+          </Chip>
+          <TagList
+            onPress={(tag) => {
+              handleSelectedTag(tag);
+              setForceClear(false);
+            }}
+            clearSelection={forceClear}
+          />
         </View>
+
+        {showCollections ? (
+          <SectionGrid
+          onScroll={handleFAB}
+            itemDimension={130}
+            sections={collections}
+            renderItem={({ item }) => (
+              <View style={styles.booksSectionList}>
+                <BookDisplayListItem
+                  title={item.title}
+                  author={item.author}
+                  volume={item.volume}
+                />
+              </View>
+            )}
+            renderSectionHeader={({ section: { collectionName } }) => (
+              <View style={styles.collectionHeader}>
+                <Text variant="titleLarge">{collectionName}</Text>
+                <Divider bold />
+              </View>
+            )}
+          />
+        ) : (
+          /* <SectionList
+              showsVerticalScrollIndicator={false}
+              sections={collections}
+              renderItem={({ item }) => (
+                <View style={styles.books}>
+                  <BookDisplayListItem
+                    title={item.title}
+                    author={item.author}
+                    volume={item.volume} />
+                </View>
+              )}
+              renderSectionHeader={({ section: { collectionName } }) => (
+                <View style={styles.collectionHeader}>
+                  <Text variant="titleLarge">{collectionName}</Text>
+                  <Divider bold />
+                </View>
+              )} /></> */
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            onScroll={handleFAB}
+            data={whatDatabaseToUse()}
+            numColumns={2}
+            renderItem={({ item }) => (
+              <View style={styles.books}>
+                <BookDisplayListItem
+                  title={item.title}
+                  author={item.author}
+                  volume={item.volume}
+                />
+              </View>
+            )}
+          />
+        )}
+
+        <AnimatedFAB
+          icon={"plus"}
+          label={"Adicionar Livro wtv"}
+          extended={isExtended}
+          onPress={() => console.log("Pressed")}
+          visible={true}
+          animateFrom={"right"}
+          iconMode={"static"}
+          style={[styles.fabStyle]}
+        />
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll
@@ -125,7 +237,7 @@ export default function HomeScreen() {
           )}
         /> */}
 
-        {isLoading ? (
+        {/* {isLoading ? (
           //TODO: se vira e arruma o loading, tá zoado
           <ActivityIndicator animating={true} />
         ) : (
@@ -142,7 +254,7 @@ export default function HomeScreen() {
               </View>
             )}
           />
-        )}
+        )} */}
       </Container>
     </>
   );
@@ -161,5 +273,21 @@ const styles = StyleSheet.create({
   },
   tags: {
     paddingVertical: Dimensions.padding.halfContainer,
+    flexDirection: "row",
+  },
+  collectionChip: {
+    margin: 3,
+  },
+  collectionHeader: {
+    paddingTop: Dimensions.padding.container,
+    paddingHorizontal: Dimensions.padding.halfContainer,
+  },
+  booksSectionList: {
+    paddingHorizontal: Dimensions.padding.halfContainer,
+  },
+  fabStyle: {
+    bottom: 40,
+    right: 16,
+    position: "absolute",
   },
 });
