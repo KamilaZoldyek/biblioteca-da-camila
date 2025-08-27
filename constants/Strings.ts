@@ -39,6 +39,12 @@ export const Strings = {
   cameraScreen: {
     screenName: "CameraScreen",
     title: "Leitura de ISBN",
+    goBack: "Voltar",
+    flash: "Flash",
+    permissionsTitle: "Permissões",
+    permissionsDescription:
+      "Precisamos da sua permissão para usar a câmera. Ela funcionará como leitor de código de barras.",
+    permissionsRequest: "Solicitar",
   },
   metadataScreen: {
     screenName: "MetadataScreen",
