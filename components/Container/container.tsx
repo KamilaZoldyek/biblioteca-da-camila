@@ -12,6 +12,7 @@ type ContainerProps = {
   iconRight?: string;
   onPressIconRight?: () => void;
   showGoBack?: boolean;
+  customGoBack?: () => void;
 };
 
 export default function Container({
@@ -22,15 +23,20 @@ export default function Container({
   showGoBack,
   onPressIconLeft,
   onPressIconRight,
+  customGoBack,
 }: ContainerProps) {
-  function handleGoBack() {
+  const handleGoBack = () => {
     router.back();
-  }
+  };
 
   return (
     <>
       <Appbar.Header>
-        {showGoBack && <Appbar.BackAction onPress={handleGoBack} />}
+        {showGoBack && (
+          <Appbar.BackAction
+            onPress={customGoBack ? customGoBack : handleGoBack}
+          />
+        )}
         <Appbar.Content title={title} />
         {iconLeft && (
           <Appbar.Action icon={iconLeft} onPress={onPressIconLeft} />
