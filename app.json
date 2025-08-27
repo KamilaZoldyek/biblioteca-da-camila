@@ -41,6 +41,14 @@
             "node_modules/@expo-google-fonts/montserrat/500Medium/Montserrat_500Medium.ttf"
           ]
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permita que Biblioteca da Camila acesse sua câmera",
+          "microphonePermission": "Permita que Biblioteca da Camila acesse seu microfone",
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {

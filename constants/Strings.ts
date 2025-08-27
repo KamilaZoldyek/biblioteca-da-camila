@@ -36,6 +36,15 @@ export const Strings = {
     complaintsTitle: "Departamento de reclamações",
     complaintsDesc: "Envie seu feedback",
   },
+  cameraScreen: {
+    screenName: "CameraScreen",
+    title: "Leitura de ISBN",
+  },
+  metadataScreen: {
+    screenName: "MetadataScreen",
+    titleNewBook: "Cadastrar",
+    titleEditing: "Editar",
+  },
 };
 
 export default Strings;

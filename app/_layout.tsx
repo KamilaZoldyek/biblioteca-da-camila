@@ -91,6 +91,14 @@ export default function RootLayout() {
               name={Strings.aboutScreen.screenName}
               options={{ title: Strings.aboutScreen.title }}
             />
+            <Stack.Screen
+              name={Strings.cameraScreen.screenName}
+              options={{ title: Strings.cameraScreen.title }}
+            />
+            <Stack.Screen
+              name={Strings.metadataScreen.screenName}
+              options={{ title: Strings.metadataScreen.titleNewBook }}
+            />
           </Stack>
         </View>
       </ThemeProvider>
