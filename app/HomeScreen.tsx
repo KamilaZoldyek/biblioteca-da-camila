@@ -9,7 +9,7 @@ import {
 import { router } from "expo-router";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
   AnimatedFAB,
   Chip,
@@ -17,7 +17,7 @@ import {
   Searchbar,
   Text,
 } from "react-native-paper";
-import { SectionGrid } from "react-native-super-grid";
+import { FlatGrid, SectionGrid } from "react-native-super-grid";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,6 +108,10 @@ export default function HomeScreen() {
     setIsExtended(currentScrollPosition <= 0);
   };
 
+  const onFABPress = () => {
+    router.navigate("/CameraScreen");
+  };
+
   const collectionChipMode = showCollections && selectedTag === "";
 
   return (
@@ -157,7 +161,7 @@ export default function HomeScreen() {
 
         {showCollections ? (
           <SectionGrid
-          onScroll={handleFAB}
+            onScroll={handleFAB}
             itemDimension={130}
             sections={collections}
             renderItem={({ item }) => (
@@ -177,24 +181,8 @@ export default function HomeScreen() {
             )}
           />
         ) : (
-          /* <SectionList
-              showsVerticalScrollIndicator={false}
-              sections={collections}
-              renderItem={({ item }) => (
-                <View style={styles.books}>
-                  <BookDisplayListItem
-                    title={item.title}
-                    author={item.author}
-                    volume={item.volume} />
-                </View>
-              )}
-              renderSectionHeader={({ section: { collectionName } }) => (
-                <View style={styles.collectionHeader}>
-                  <Text variant="titleLarge">{collectionName}</Text>
-                  <Divider bold />
-                </View>
-              )} /></> */
-          <FlatList
+          <FlatGrid
+            itemDimension={130}
             showsVerticalScrollIndicator={false}
             onScroll={handleFAB}
             data={whatDatabaseToUse()}
@@ -213,12 +201,10 @@ export default function HomeScreen() {
 
         <AnimatedFAB
           icon={"plus"}
-          label={"Adicionar Livro wtv"}
+          label={Strings.homeScreen.fabAdd}
           extended={isExtended}
-          onPress={() => console.log("Pressed")}
+          onPress={onFABPress}
           visible={true}
-          animateFrom={"right"}
-          iconMode={"static"}
           style={[styles.fabStyle]}
         />
 
@@ -286,8 +272,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Dimensions.padding.halfContainer,
   },
   fabStyle: {
-    bottom: 40,
-    right: 16,
+    bottom: 50,
+    right: 25,
     position: "absolute",
   },
 });
