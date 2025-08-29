@@ -4,7 +4,7 @@ export const Dimensions = {
     halfContainer: 8,
     divider: 45,
     flatListItems: 13,
-    dividerInput: 20,
+    dividerInput: 6,
   },
   margin: {
     divider: 45,
