@@ -9,6 +9,7 @@ export const Dimensions = {
   margin: {
     divider: 45,
     tallMargin: 80,
+    dividerBetweenPublisherAndYear: 27
   },
 };
 

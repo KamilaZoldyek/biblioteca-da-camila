@@ -87,6 +87,7 @@ export const Strings = {
     rating: "Avaliação",
     review: "Resenha",
     noReview: "Decidi não escrever uma resenha",
+    noReviewReally: 'Sem resenha, sem texto',
     manualScrapingTitle: "Scraping manual",
     manualScrapingDescription:
       "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.",
