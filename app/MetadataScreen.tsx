@@ -1,13 +1,15 @@
-import { Container } from "@/components";
+import { Container, CustomCard, LongButton } from "@/components";
 import { Dimensions, Strings } from "@/constants/";
+import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
 import { router, useLocalSearchParams } from "expo-router";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  useColorScheme,
   View,
 } from "react-native";
 import {
@@ -21,6 +23,7 @@ import {
 
 export default function MetadataScreen() {
   const item = useLocalSearchParams<{ isbn: string }>();
+  const colorScheme = useColorScheme();
   const ISBN = item.isbn;
   const [bookTitle, setBookTitle] = useState("");
   const [collectionTitle, setCollectionTitle] = useState("");
@@ -30,21 +33,46 @@ export default function MetadataScreen() {
   const [hasSynopsis, setHasSynopsis] = useState(true);
   const [synopsis, setSynopsis] = useState("");
   const [year, setYear] = useState("");
-  const [wasRead, setWasRead] = useState("");
-  const [kind, setKind] = useState("");
-  const [location, setLocation] = useState("");
+  const [wasRead, setWasRead] = useState("Não lido");
+  const [kind, setKind] = useState("Mangá");
+  const [location, setLocation] = useState("Minha casa");
   const [collectionStatus, setCollectionStatus] = useState("");
   const [uploadCoverName, setUploadCoverName] = useState(
     "text_cover_name_with_a_lot_of_words_to_test_the_position_and_paddings_and_margins_lorem_ipsum_sit_amet"
   );
-    const [hasReview, setHasReview] = useState(true);
+  const [hasReview, setHasReview] = useState(true);
   const [review, setReview] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    storedThemeDataOrColorScheme(colorScheme).then((mode) => {
+      setTheme(mode);
+    });
+  }, [colorScheme, setTheme]);
+
+  useEffect(() => {
+    if (bookTitle === "" || collectionTitle === "") {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [bookTitle, collectionTitle]);
 
   const customGoBack = () => {
     router.navigate("/HomeScreen");
   };
 
   const handleImageUpload = () => {
+    console.log("click");
+    // TODO
+  };
+
+  const handleISBNSearch = () => {
+    console.log("click");
+    // TODO
+  };
+  const handleSave = () => {
     console.log("click");
     // TODO
   };
@@ -320,13 +348,11 @@ export default function MetadataScreen() {
     );
   };
 
-   const renderRatingBlock = () => {
+  const renderRatingBlock = () => {
     return (
       <View style={styles.blocks}>
         <Text variant="titleMedium">{Strings.metadataScreen.rating}</Text>
-        <View style={styles.chipBlock}>
-
-        </View>
+        <View style={styles.chipBlock}></View>
       </View>
     );
   };
@@ -406,7 +432,7 @@ export default function MetadataScreen() {
           {renderKindBlock()}
           {renderLocationBlock()}
           {renderCoverBlock()}
-          
+          {/* TODO TÁ FALTANDO O COLLECTION STATUS */}
 
           <Text variant="titleLarge">
             {Strings.metadataScreen.opinionTitle}
@@ -415,8 +441,33 @@ export default function MetadataScreen() {
 
           {renderRatingBlock()}
           {renderReviewBlock()}
+          <CustomCard
+            title={Strings.metadataScreen.manualScrapingTitle}
+            subtitle={Strings.metadataScreen.manualScrapingDescription}
+            iconName={"information"}
+            theme={theme}
+          />
 
-          <View style={{ paddingBottom: 250 }} />
+          <View style={styles.chipBlock}>
+            <Button
+              icon={"magnify"}
+              mode="contained"
+              style={styles.chip}
+              onPress={handleISBNSearch}
+            >
+              {Strings.metadataScreen.isbnSearch}
+            </Button>
+          </View>
+          <View style={{ paddingBottom: 120 }} />
+
+          <LongButton
+            text={Strings.metadataScreen.save}
+            onPress={handleSave}
+            theme={theme}
+            disabled={disabled}
+          />
+
+          <View style={{ paddingBottom: 50 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Container>
