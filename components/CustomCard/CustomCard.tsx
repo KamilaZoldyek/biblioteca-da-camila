@@ -30,10 +30,12 @@ export default function CustomCard({
               : Colors.light.inverseOnSurface,
           borderRadius: 10,
           marginVertical: Dimensions.padding.halfContainer,
+          paddingVertical: Dimensions.padding.container,
         }}
         title={title}
         subtitle={subtitle}
         left={(props) => <Icon source={iconName} size={35} />}
+        subtitleNumberOfLines={2}
       />
     </Pressable>
   );

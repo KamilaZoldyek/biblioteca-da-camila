@@ -20,7 +20,7 @@ export default function TagList({
 
   const ripple = {
     color: Colors.dark.primary,
-    radius: 30,
+    radius: 100,
     foreground: true,
     borderless: false,
   };
