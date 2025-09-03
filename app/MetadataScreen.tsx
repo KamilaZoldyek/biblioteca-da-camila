@@ -27,6 +27,7 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
+import { WebView } from "react-native-webview";
 
 export default function MetadataScreen() {
   const item = useLocalSearchParams<{ isbn: string }>();
@@ -53,6 +54,7 @@ export default function MetadataScreen() {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [disabled, setDisabled] = useState(false);
   const [rating, setRating] = useState("");
+  const [showWebview, setShowWebview] = useState(false);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -72,7 +74,7 @@ export default function MetadataScreen() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
-      aspect: [3, 4],
+      // aspect: [3, 5],
       quality: 1,
       selectionLimit: 1,
     });
@@ -91,7 +93,8 @@ export default function MetadataScreen() {
   };
 
   const handleISBNSearch = () => {
-    console.log("click");
+    setShowWebview(true);
+
     // TODO
   };
   const handleSave = () => {
@@ -358,13 +361,15 @@ export default function MetadataScreen() {
   };
 
   return (
-    <Container
-      title={Strings.metadataScreen.titleNewBook}
-      showGoBack
-      customGoBack={customGoBack}
-    >
-      {/* TODO: TIRAR o keyboard avoiding view quando exportar pq não precisa */}
-      {/* TODO: Adicionar 
+    <>
+      {!showWebview && (
+        <Container
+          title={Strings.metadataScreen.titleNewBook}
+          showGoBack
+          customGoBack={customGoBack}
+        >
+          {/* TODO: TIRAR o keyboard avoiding view quando exportar pq não precisa */}
+          {/* TODO: Adicionar 
           <activity
           android:name=".MainActivity"
           android:windowSoftInputMode="adjustResize"
@@ -372,78 +377,86 @@ export default function MetadataScreen() {
           ... >
         no android.manifest pra funcionar e depois tirar o comentário da scrollview
       */}
-      <KeyboardAvoidingView
-        behavior="padding"
-        keyboardVerticalOffset={Platform.select({ ios: 64, android: 120 })}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          // contentContainerStyle={{
-          //   flexGrow: 1,
-          //   justifyContent: "flex-end",
-          //   padding: 16,
-          // }}
-          // keyboardShouldPersistTaps="handled"
-          // keyboardDismissMode="on-drag"
-        >
-          <Text variant="titleLarge">
-            {Strings.metadataScreen.metadataTitle}
-          </Text>
-          <Divider bold style={styles.largeMarginBottom} />
-
-          {renderTitleBlock()}
-          {renderCollectionBlock()}
-          {renderAuthorBlock()}
-          {renderVolumeBlock()}
-          {renderISBNBlock()}
-          {renderPublisherBlock()}
-          {renderYearBlock()}
-          {renderSynopsisBlock()}
-          {renderReadingStatusBlock()}
-          {renderKindBlock()}
-          {renderLocationBlock()}
-          {collectionStatusBlock()}
-          {renderCoverBlock()}
-
-          <View style={{ paddingBottom: 50 }} />
-
-          <Text variant="titleLarge">
-            {Strings.metadataScreen.opinionTitle}
-          </Text>
-          <Divider bold style={styles.largeMarginBottom} />
-
-          {renderRatingBlock()}
-          {renderReviewBlock()}
-          <CustomCard
-            title={Strings.metadataScreen.manualScrapingTitle}
-            subtitle={Strings.metadataScreen.manualScrapingDescription}
-            iconName={"information"}
-            theme={theme}
-          />
-
-          <View style={styles.chipBlock}>
-            <Button
-              icon={"magnify"}
-              mode="contained"
-              style={styles.chip}
-              onPress={handleISBNSearch}
+          <KeyboardAvoidingView
+            behavior="padding"
+            keyboardVerticalOffset={Platform.select({ ios: 64, android: 120 })}
+          >
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              // contentContainerStyle={{
+              //   flexGrow: 1,
+              //   justifyContent: "flex-end",
+              //   padding: 16,
+              // }}
+              // keyboardShouldPersistTaps="handled"
+              // keyboardDismissMode="on-drag"
             >
-              {Strings.metadataScreen.isbnSearch}
-            </Button>
-          </View>
-          <View style={{ paddingBottom: 120 }} />
+              <Text variant="titleLarge">
+                {Strings.metadataScreen.metadataTitle}
+              </Text>
+              <Divider bold style={styles.largeMarginBottom} />
 
-          <LongButton
-            text={Strings.metadataScreen.save}
-            onPress={handleSave}
-            theme={theme}
-            disabled={disabled}
-          />
+              {renderTitleBlock()}
+              {renderCollectionBlock()}
+              {renderAuthorBlock()}
+              {renderVolumeBlock()}
+              {renderISBNBlock()}
+              {renderPublisherBlock()}
+              {renderYearBlock()}
+              {renderSynopsisBlock()}
+              {renderReadingStatusBlock()}
+              {renderKindBlock()}
+              {renderLocationBlock()}
+              {collectionStatusBlock()}
+              {renderCoverBlock()}
 
-          <View style={{ paddingBottom: 50 }} />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Container>
+              <View style={{ paddingBottom: 50 }} />
+
+              <Text variant="titleLarge">
+                {Strings.metadataScreen.opinionTitle}
+              </Text>
+              <Divider bold style={styles.largeMarginBottom} />
+
+              {renderRatingBlock()}
+              {renderReviewBlock()}
+              <CustomCard
+                title={Strings.metadataScreen.manualScrapingTitle}
+                subtitle={Strings.metadataScreen.manualScrapingDescription}
+                iconName={"information"}
+                theme={theme}
+              />
+
+              <View style={styles.chipBlock}>
+                <Button
+                  icon={"magnify"}
+                  mode="contained"
+                  style={styles.chip}
+                  onPress={handleISBNSearch}
+                >
+                  {Strings.metadataScreen.isbnSearch}
+                </Button>
+              </View>
+              <View style={{ paddingBottom: 120 }} />
+
+              <LongButton
+                text={Strings.metadataScreen.save}
+                onPress={handleSave}
+                theme={theme}
+                disabled={disabled}
+              />
+
+              <View style={{ paddingBottom: 50 }} />
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </Container>
+      )}
+      {showWebview && (
+        <WebView
+          style={styles.webViewContainer}
+          source={{ uri: "https://isbnsearch.org/isbn/" + ISBN }}
+        />
+      )}
+    </>
   );
 }
 
@@ -498,9 +511,13 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 150,
-    height: 200,
+    height: 250,
     marginLeft: 35,
     marginTop: 8,
     borderRadius: Dimensions.borderRadius.bookCover,
+  },
+  webViewContainer: {
+    flex: 1,
+    marginTop: 35,
   },
 });
