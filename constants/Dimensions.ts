@@ -11,6 +11,9 @@ export const Dimensions = {
     tallMargin: 80,
     dividerBetweenPublisherAndYear: 27
   },
+  borderRadius: {
+    bookCover: 10,
+  }
 };
 
 export default Dimensions;

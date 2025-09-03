@@ -1,10 +1,17 @@
-import { Container, CustomCard, LongButton } from "@/components";
+import {
+  ChipsWithTitle,
+  Container,
+  CustomCard,
+  LongButton,
+} from "@/components";
 import { Dimensions, Strings } from "@/constants/";
 import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
+import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -25,6 +32,9 @@ export default function MetadataScreen() {
   const item = useLocalSearchParams<{ isbn: string }>();
   const colorScheme = useColorScheme();
   const ISBN = item.isbn;
+  const RATING_LIST = ["N/A", "1", "2", "3", "4", "5"];
+  //TODO isso provavelmente vai virar um type, assim como os outros
+
   const [bookTitle, setBookTitle] = useState("");
   const [collectionTitle, setCollectionTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -37,13 +47,12 @@ export default function MetadataScreen() {
   const [kind, setKind] = useState("Mangá");
   const [location, setLocation] = useState("Minha casa");
   const [collectionStatus, setCollectionStatus] = useState("");
-  const [uploadCoverName, setUploadCoverName] = useState(
-    "text_cover_name_with_a_lot_of_words_to_test_the_position_and_paddings_and_margins_lorem_ipsum_sit_amet"
-  );
+  const [uploadCoverName, setUploadCoverName] = useState<string | null>(null);
   const [hasReview, setHasReview] = useState(true);
   const [review, setReview] = useState("");
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [disabled, setDisabled] = useState(false);
+  const [rating, setRating] = useState("");
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -59,13 +68,26 @@ export default function MetadataScreen() {
     }
   }, [bookTitle, collectionTitle]);
 
-  const customGoBack = () => {
-    router.navigate("/HomeScreen");
+  const handleImageUpload = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
+      selectionLimit: 1,
+    });
+
+    console.log(result);
+    // TODO: pegar o result e subir pra nuvem ou guardar em algum lugar
+    // TODO: gerenciar quando vem capa do google(raro, mas acontece)
+
+    if (!result.canceled) {
+      setUploadCoverName(result.assets[0].uri);
+    }
   };
 
-  const handleImageUpload = () => {
-    console.log("click");
-    // TODO
+  const customGoBack = () => {
+    router.navigate("/HomeScreen");
   };
 
   const handleISBNSearch = () => {
@@ -219,31 +241,11 @@ export default function MetadataScreen() {
   const renderReadingStatusBlock = () => {
     return (
       <View style={styles.blocks}>
-        <Text variant="titleMedium">
-          {Strings.metadataScreen.readingStatus}
-        </Text>
-        <View style={styles.chipBlock}>
-          <Chip
-            style={styles.chip}
-            icon={
-              wasRead === Strings.metadataScreen.unread ? "check" : undefined
-            }
-            mode={
-              wasRead === Strings.metadataScreen.unread ? "flat" : "outlined"
-            }
-            onPress={() => setWasRead(Strings.metadataScreen.unread)}
-          >
-            {Strings.metadataScreen.unread}
-          </Chip>
-          <Chip
-            style={styles.chip}
-            icon={wasRead === Strings.metadataScreen.read ? "check" : undefined}
-            mode={wasRead === Strings.metadataScreen.read ? "flat" : "outlined"}
-            onPress={() => setWasRead(Strings.metadataScreen.read)}
-          >
-            {Strings.metadataScreen.read}
-          </Chip>
-        </View>
+        <ChipsWithTitle
+          onPress={(status) => setWasRead(status)}
+          data={["Não lido", "Lido"]}
+          title={Strings.metadataScreen.readingStatus}
+        />
       </View>
     );
   };
@@ -251,33 +253,11 @@ export default function MetadataScreen() {
   const renderKindBlock = () => {
     return (
       <View style={styles.blocks}>
-        <Text variant="titleMedium">{Strings.metadataScreen.bookKind}</Text>
-        <View style={styles.chipBlock}>
-          <Chip
-            style={styles.chip}
-            icon={kind === Strings.metadataScreen.manga ? "check" : undefined}
-            mode={kind === Strings.metadataScreen.manga ? "flat" : "outlined"}
-            onPress={() => setKind(Strings.metadataScreen.manga)}
-          >
-            {Strings.metadataScreen.manga}
-          </Chip>
-          <Chip
-            style={styles.chip}
-            icon={kind === Strings.metadataScreen.book ? "check" : undefined}
-            mode={kind === Strings.metadataScreen.book ? "flat" : "outlined"}
-            onPress={() => setKind(Strings.metadataScreen.book)}
-          >
-            {Strings.metadataScreen.book}
-          </Chip>
-          <Chip
-            style={styles.chip}
-            icon={kind === Strings.metadataScreen.comics ? "check" : undefined}
-            mode={kind === Strings.metadataScreen.comics ? "flat" : "outlined"}
-            onPress={() => setKind(Strings.metadataScreen.comics)}
-          >
-            {Strings.metadataScreen.comics}
-          </Chip>
-        </View>
+        <ChipsWithTitle
+          onPress={(kind) => setKind(kind)}
+          data={["Mangá", "Livro", "HQ"]}
+          title={Strings.metadataScreen.bookKind}
+        />
       </View>
     );
   };
@@ -285,37 +265,23 @@ export default function MetadataScreen() {
   const renderLocationBlock = () => {
     return (
       <View style={styles.blocks}>
-        <Text variant="titleMedium">{Strings.metadataScreen.where}</Text>
-        <View style={styles.chipBlock}>
-          <Chip
-            style={styles.chip}
-            icon={
-              location === Strings.metadataScreen.mothersHome
-                ? "check"
-                : undefined
-            }
-            mode={
-              location === Strings.metadataScreen.mothersHome
-                ? "flat"
-                : "outlined"
-            }
-            onPress={() => setLocation(Strings.metadataScreen.mothersHome)}
-          >
-            {Strings.metadataScreen.mothersHome}
-          </Chip>
-          <Chip
-            style={styles.chip}
-            icon={
-              location === Strings.metadataScreen.myHome ? "check" : undefined
-            }
-            mode={
-              location === Strings.metadataScreen.myHome ? "flat" : "outlined"
-            }
-            onPress={() => setLocation(Strings.metadataScreen.myHome)}
-          >
-            {Strings.metadataScreen.myHome}
-          </Chip>
-        </View>
+        <ChipsWithTitle
+          onPress={(location) => setLocation(location)}
+          data={["Casa de mãe", "Minha casa"]}
+          title={Strings.metadataScreen.where}
+        />
+      </View>
+    );
+  };
+
+  const collectionStatusBlock = () => {
+    return (
+      <View style={styles.blocks}>
+        <ChipsWithTitle
+          onPress={(collectionStatus) => setCollectionStatus(collectionStatus)}
+          data={["Incompleta", "Completa"]}
+          title={Strings.metadataScreen.collectionStatus}
+        />
       </View>
     );
   };
@@ -326,6 +292,11 @@ export default function MetadataScreen() {
         <Text style={styles.smallMarginBottom} variant="titleMedium">
           {Strings.metadataScreen.coverArt}
         </Text>
+        {uploadCoverName && (
+          <Text style={styles.coverName} variant="bodyMedium">
+            {uploadCoverName}
+          </Text>
+        )}
         <View style={styles.chipBlock}>
           <Button
             icon={"upload"}
@@ -335,14 +306,9 @@ export default function MetadataScreen() {
           >
             {Strings.metadataScreen.uploadCoverCTA}
           </Button>
-          <Text
-            style={styles.coverName}
-            variant="bodyMedium"
-            numberOfLines={2}
-            ellipsizeMode="tail"
-          >
-            {uploadCoverName}
-          </Text>
+          {uploadCoverName && (
+            <Image source={{ uri: uploadCoverName }} style={styles.image} />
+          )}
         </View>
       </View>
     );
@@ -351,8 +317,13 @@ export default function MetadataScreen() {
   const renderRatingBlock = () => {
     return (
       <View style={styles.blocks}>
-        <Text variant="titleMedium">{Strings.metadataScreen.rating}</Text>
         <View style={styles.chipBlock}></View>
+        <ChipsWithTitle
+          onPress={(rating) => setRating(rating)}
+          data={RATING_LIST}
+          isRating
+          title={Strings.metadataScreen.rating}
+        />
       </View>
     );
   };
@@ -431,8 +402,10 @@ export default function MetadataScreen() {
           {renderReadingStatusBlock()}
           {renderKindBlock()}
           {renderLocationBlock()}
+          {collectionStatusBlock()}
           {renderCoverBlock()}
-          {/* TODO TÁ FALTANDO O COLLECTION STATUS */}
+
+          <View style={{ paddingBottom: 50 }} />
 
           <Text variant="titleLarge">
             {Strings.metadataScreen.opinionTitle}
@@ -521,6 +494,13 @@ const styles = StyleSheet.create({
   },
   coverName: {
     marginVertical: Dimensions.padding.halfContainer,
-    width: "55%",
+    width: "100%",
+  },
+  image: {
+    width: 150,
+    height: 200,
+    marginLeft: 35,
+    marginTop: 8,
+    borderRadius: Dimensions.borderRadius.bookCover,
   },
 });

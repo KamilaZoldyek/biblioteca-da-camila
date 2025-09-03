@@ -28,7 +28,7 @@ export default function CustomCard({
             theme === "dark"
               ? Colors.dark.inverseOnSurface
               : Colors.light.inverseOnSurface,
-          borderRadius: 10,
+          borderRadius: Dimensions.borderRadius.bookCover,
           marginVertical: Dimensions.padding.halfContainer,
           paddingVertical: Dimensions.padding.container,
         }}

@@ -65,7 +65,7 @@ export default function LongButton({
       disabled={disabled}
       style={{
         backgroundColor: backgroundSelector(),
-        borderRadius: 10,
+        borderRadius: Dimensions.borderRadius.bookCover,
         width: "100%",
         marginVertical: Dimensions.padding.halfContainer,
       }}
@@ -94,5 +94,9 @@ const styles = StyleSheet.create({
     alignContent: "center",
     alignItems: "center",
   },
-  image: { width: 150, height: 200, borderRadius: 10 },
+  image: {
+    width: 150,
+    height: 200,
+    borderRadius: Dimensions.borderRadius.bookCover,
+  },
 });
