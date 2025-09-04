@@ -8,6 +8,7 @@ export const Strings = {
     searchPlaceholder: "Pesquise uma obra, autor ou coleção",
     searchResultText: "Resultados de busca para: ",
     collections: "Coleções",
+    emptyList: 'Clique no + para adicionar um livro'
   },
   configsScreen: {
     title: "Configurações",
