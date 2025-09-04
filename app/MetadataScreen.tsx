@@ -22,8 +22,10 @@ import {
 import {
   Button,
   Chip,
+  Dialog,
   Divider,
   HelperText,
+  Portal,
   Text,
   TextInput,
 } from "react-native-paper";
@@ -55,6 +57,7 @@ export default function MetadataScreen() {
   const [disabled, setDisabled] = useState(false);
   const [rating, setRating] = useState("");
   const [showWebview, setShowWebview] = useState(false);
+  const [showGoBackModal, setShowGoBackModal] = useState(false);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -89,6 +92,7 @@ export default function MetadataScreen() {
   };
 
   const customGoBack = () => {
+    setShowGoBackModal(false);
     router.navigate("/HomeScreen");
   };
 
@@ -366,7 +370,7 @@ export default function MetadataScreen() {
         <Container
           title={Strings.metadataScreen.titleNewBook}
           showGoBack
-          customGoBack={customGoBack}
+          customGoBack={() => setShowGoBackModal(true)}
         >
           {/* TODO: TIRAR o keyboard avoiding view quando exportar pq não precisa */}
           {/* TODO: Adicionar 
@@ -455,6 +459,31 @@ export default function MetadataScreen() {
           style={styles.webViewContainer}
           source={{ uri: "https://isbnsearch.org/isbn/" + ISBN }}
         />
+      )}
+      {showGoBackModal && (
+        <Portal>
+          <Dialog
+            dismissableBackButton
+            visible={showGoBackModal}
+            onDismiss={() => setShowGoBackModal(false)}
+          >
+            <Dialog.Icon icon="alert" />
+            <Dialog.Title>{Strings.metadataScreen.modalTitle}</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">
+                {Strings.metadataScreen.modalDescription}
+              </Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setShowGoBackModal(false)}>
+                {Strings.metadataScreen.modalCancel}
+              </Button>
+              <Button onPress={customGoBack}>
+                {Strings.metadataScreen.modalOk}
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       )}
     </>
   );
