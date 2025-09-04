@@ -67,7 +67,7 @@ export const Strings = {
     year: "Ano de publicação",
     synopsis: "Sinopse",
     noSynopsis: "Não encontrei uma sinopse",
-    noSynopsisReally: 'Sem sinopse, sem texto',
+    noSynopsisReally: "Sem sinopse, sem texto",
     readingStatus: "Status",
     unread: "Não lido",
     read: "Lido",
@@ -87,12 +87,17 @@ export const Strings = {
     rating: "Avaliação",
     review: "Resenha",
     noReview: "Decidi não escrever uma resenha",
-    noReviewReally: 'Sem resenha, sem texto',
+    noReviewReally: "Sem resenha, sem texto",
     manualScrapingTitle: "Scraping manual",
     manualScrapingDescription:
       "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.",
     isbnSearch: "ISBN search",
     save: "Salvar",
+    modalOk: "Voltar assim mesmo",
+    modalCancel: "Ficar na tela",
+    modalTitle: "Sair?",
+    modalDescription:
+      "Tem certeza que quer voltar? Você vai perder os dados não salvos!",
   },
 };
 
