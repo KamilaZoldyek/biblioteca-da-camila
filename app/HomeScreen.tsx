@@ -1,6 +1,6 @@
 import { Container, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
-import { Dimensions, Strings } from "@/constants/";
+import { Colors, Dimensions, Strings } from "@/constants/";
 import {
   BookList,
   getCollectionsFromBookList,
@@ -87,6 +87,8 @@ export default function HomeScreen() {
     }
 
     return mockBookList;
+
+    // return [];
   };
 
   const handleSelectedTag = (tag: string) => {
@@ -113,6 +115,19 @@ export default function HomeScreen() {
   };
 
   const collectionChipMode = showCollections && selectedTag === "";
+
+  const renderEmptyComponent = () => {
+    return (
+      <View style={styles.emptyList}>
+        <Text
+          style={{ color: Colors.dark.onSurfaceDisabled }}
+          variant="titleLarge"
+        >
+          {Strings.homeScreen.emptyList}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <>
@@ -182,6 +197,7 @@ export default function HomeScreen() {
           />
         ) : (
           <FlatGrid
+            ListEmptyComponent={renderEmptyComponent}
             itemDimension={130}
             showsVerticalScrollIndicator={false}
             onScroll={handleFAB}
@@ -275,5 +291,10 @@ const styles = StyleSheet.create({
     bottom: 50,
     right: 25,
     position: "absolute",
+  },
+  emptyList: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: Dimensions.margin.divider,
   },
 });
