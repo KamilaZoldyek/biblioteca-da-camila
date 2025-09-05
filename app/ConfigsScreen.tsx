@@ -5,7 +5,7 @@ import {
   storedThemeDataOrColorScheme,
 } from "@/Storage/ThemeData";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Appearance, StyleSheet, useColorScheme, View } from "react-native";
 import { Button, Switch, Text } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
@@ -13,10 +13,10 @@ import { TimePickerModal } from "react-native-paper-dates";
 export default function ConfigsScreen() {
   const colorScheme = useColorScheme();
 
-  const [isDarkModeOn, setIsDarkModeOn] = React.useState(true);
-  const [visible, setVisible] = React.useState(false);
-  const [hour, setHour] = React.useState(12);
-  const [minutes, setMinutes] = React.useState(30);
+  const [isDarkModeOn, setIsDarkModeOn] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const [hour, setHour] = useState(12);
+  const [minutes, setMinutes] = useState(30);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
 
   useEffect(() => {
@@ -38,11 +38,11 @@ export default function ConfigsScreen() {
     }
   };
 
-  const onDismiss = React.useCallback(() => {
+  const onDismiss = useCallback(() => {
     setVisible(false);
   }, [setVisible]);
 
-  const onConfirm = React.useCallback(
+  const onConfirm = useCallback(
     ({ hours, minutes }) => {
       setVisible(false);
       setHour(hours);

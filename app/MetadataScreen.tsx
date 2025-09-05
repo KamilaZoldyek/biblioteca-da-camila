@@ -2,15 +2,19 @@ import {
   ChipsWithTitle,
   Container,
   CustomCard,
+  ISBNSearchButton,
+  ISBNWebview,
+  LoadingOverlay,
   LongButton,
 } from "@/components";
-import { Dimensions, Strings } from "@/constants/";
+import { Colors, Dimensions, Strings } from "@/constants/";
 import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
 import * as ImagePicker from "expo-image-picker";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  BackHandler,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -29,12 +33,13 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import { WebView } from "react-native-webview";
 
 export default function MetadataScreen() {
   const item = useLocalSearchParams<{ isbn: string }>();
-  const colorScheme = useColorScheme();
+  const name = useLocalSearchParams<{ name: string }>();
+  const SCREEN_NAME = name.name;
   const ISBN = item.isbn;
+  const colorScheme = useColorScheme();
   const RATING_LIST = ["N/A", "1", "2", "3", "4", "5"];
   //TODO isso provavelmente vai virar um type, assim como os outros
 
@@ -58,6 +63,22 @@ export default function MetadataScreen() {
   const [rating, setRating] = useState("");
   const [showWebview, setShowWebview] = useState(false);
   const [showGoBackModal, setShowGoBackModal] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+
+  const delay = (milliseconds: number) =>
+    new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  const handleLoading = async () => {
+    setShowLoading(true);
+    await delay(3000);
+    setShowLoading(false);
+  };
+
+  //Typescript tá chorando porque a dependency array tá vazia,
+  //mas É PRA FICAR VAZIA, só quero o loading aparecendo uma vez só, chora mais
+  useEffect(() => {
+    handleLoading();
+  }, []);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -72,6 +93,22 @@ export default function MetadataScreen() {
       setDisabled(false);
     }
   }, [bookTitle, collectionTitle]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        setShowGoBackModal(true);
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => subscription.remove();
+    }, [])
+  );
 
   const handleImageUpload = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -96,11 +133,6 @@ export default function MetadataScreen() {
     router.navigate("/HomeScreen");
   };
 
-  const handleISBNSearch = () => {
-    setShowWebview(true);
-
-    // TODO
-  };
   const handleSave = () => {
     console.log("click");
     // TODO
@@ -368,7 +400,9 @@ export default function MetadataScreen() {
     <>
       {!showWebview && (
         <Container
-          title={Strings.metadataScreen.titleNewBook}
+          title={
+            SCREEN_NAME ? SCREEN_NAME : Strings.metadataScreen.titleNewBook
+          }
           showGoBack
           customGoBack={() => setShowGoBackModal(true)}
         >
@@ -381,6 +415,7 @@ export default function MetadataScreen() {
           ... >
         no android.manifest pra funcionar e depois tirar o comentário da scrollview
       */}
+
           <KeyboardAvoidingView
             behavior="padding"
             keyboardVerticalOffset={Platform.select({ ios: 64, android: 120 })}
@@ -431,14 +466,7 @@ export default function MetadataScreen() {
               />
 
               <View style={styles.chipBlock}>
-                <Button
-                  icon={"magnify"}
-                  mode="contained"
-                  style={styles.chip}
-                  onPress={handleISBNSearch}
-                >
-                  {Strings.metadataScreen.isbnSearch}
-                </Button>
+                <ISBNSearchButton onPress={() => setShowWebview(true)} />
               </View>
               <View style={{ paddingBottom: 120 }} />
 
@@ -448,18 +476,17 @@ export default function MetadataScreen() {
                 theme={theme}
                 disabled={disabled}
               />
-
-              <View style={{ paddingBottom: 50 }} />
+              <View style={{ paddingBottom: 20 }} />
             </ScrollView>
           </KeyboardAvoidingView>
         </Container>
       )}
-      {showWebview && (
-        <WebView
-          style={styles.webViewContainer}
-          source={{ uri: "https://isbnsearch.org/isbn/" + ISBN }}
-        />
+      {showLoading && (
+        <View style={styles.loadingContainer}>
+          <LoadingOverlay />
+        </View>
       )}
+      {showWebview && <ISBNWebview isbn={ISBN} />}
       {showGoBackModal && (
         <Portal>
           <Dialog
@@ -468,7 +495,9 @@ export default function MetadataScreen() {
             onDismiss={() => setShowGoBackModal(false)}
           >
             <Dialog.Icon icon="alert" />
-            <Dialog.Title>{Strings.metadataScreen.modalTitle}</Dialog.Title>
+            <Dialog.Title style={{ alignSelf: "center" }}>
+              {Strings.metadataScreen.modalTitle}
+            </Dialog.Title>
             <Dialog.Content>
               <Text variant="bodyMedium">
                 {Strings.metadataScreen.modalDescription}
@@ -548,5 +577,14 @@ const styles = StyleSheet.create({
   webViewContainer: {
     flex: 1,
     marginTop: 35,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    backgroundColor: Colors.dark.background,
   },
 });
