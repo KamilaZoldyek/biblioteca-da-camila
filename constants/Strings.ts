@@ -8,7 +8,7 @@ export const Strings = {
     searchPlaceholder: "Pesquise uma obra, autor ou coleção",
     searchResultText: "Resultados de busca para: ",
     collections: "Coleções",
-    emptyList: 'Clique no + para adicionar um livro'
+    emptyList: "Clique no + para adicionar um livro",
   },
   configsScreen: {
     title: "Configurações",
@@ -99,6 +99,12 @@ export const Strings = {
     modalTitle: "Sair?",
     modalDescription:
       "Tem certeza que quer voltar? Você vai perder os dados não salvos!",
+  },
+  bookScreen: {
+    title: "Detalhes",
+    screenName: "BookScreen",
+    volume: 'Volume'
+
   },
 };
 
