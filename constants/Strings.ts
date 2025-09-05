@@ -103,8 +103,12 @@ export const Strings = {
   bookScreen: {
     title: "Detalhes",
     screenName: "BookScreen",
-    volume: 'Volume'
-
+    volume: "Volume",
+    back: "Voltar",
+    delete: "Excluir assim mesmo",
+    deleteModalTitle: "Exclusão de Livro",
+    deleteModalDescription:
+      "Tem certeza que quer apagar o livro? Não tem como recuperar depois!",
   },
 };
 

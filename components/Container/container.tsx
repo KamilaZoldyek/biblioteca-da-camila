@@ -45,7 +45,10 @@ export default function Container({
           <Appbar.Action icon={iconRight} onPress={onPressIconRight} />
         )}
       </Appbar.Header>
-      <View style={styles.container}>{children}</View>
+      <View style={styles.container}>
+        {children}
+        <View style={{ paddingBottom: 50 }} />
+      </View>
     </>
   );
 }

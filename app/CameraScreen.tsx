@@ -16,9 +16,11 @@ export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [enableTorch, setEnableTorch] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState(false);
 
   const onBarcodeScanned = (scanningResult: BarcodeScanningResult) => {
     const isbnCode = scanningResult.data;
+    setScanSuccess(true);
 
     router.push({ pathname: "/MetadataScreen", params: { isbn: isbnCode } });
   };
@@ -33,7 +35,6 @@ export default function CameraScreen() {
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <Container title={""}>
         <View style={styles.container}>
@@ -61,33 +62,34 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        autofocus="on"
-        barcodeScannerSettings={{
-          barcodeTypes: ["ean13", "ean8"],
-        }}
-        onBarcodeScanned={(result) => onBarcodeScanned(result)}
-        enableTorch={enableTorch}
-      >
-        <View style={styles.buttonContainer}>
-          <Button
-            onPress={onGoBack}
-            mode="contained-tonal"
-            icon={"arrow-left-circle"}
-          >
-            <Text variant="bodyMedium">{Strings.cameraScreen.goBack}</Text>
-          </Button>
-          <Button
-            onPress={() => setEnableTorch(!enableTorch)}
-            icon={"flash"}
-            mode="contained-tonal"
-          >
-            <Text variant="bodyMedium">{Strings.cameraScreen.flash}</Text>
-          </Button>
-        </View>
-      </CameraView>
+      <View style={styles.buttonContainer}>
+        <Button
+          onPress={onGoBack}
+          mode="contained-tonal"
+          icon={"arrow-left-circle"}
+        >
+          <Text variant="bodyMedium">{Strings.cameraScreen.goBack}</Text>
+        </Button>
+        <Button
+          onPress={() => setEnableTorch(!enableTorch)}
+          icon={"flash"}
+          mode="contained-tonal"
+        >
+          <Text variant="bodyMedium">{Strings.cameraScreen.flash}</Text>
+        </Button>
+      </View>
+      {!scanSuccess && (
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          autofocus="on"
+          barcodeScannerSettings={{
+            barcodeTypes: ["ean13", "ean8"],
+          }}
+          onBarcodeScanned={(result) => onBarcodeScanned(result)}
+          enableTorch={enableTorch}
+        ></CameraView>
+      )}
     </View>
   );
 }

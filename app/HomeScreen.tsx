@@ -1,4 +1,4 @@
-import { Container, TagList } from "@/components";
+import { Container, LoadingOverlay, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Colors, Dimensions, Strings } from "@/constants/";
 import {
@@ -80,7 +80,6 @@ export default function HomeScreen() {
   };
 
   const whatDatabaseToUse = () => {
-    console.log("tag", selectedTag);
     if (shouldShowResult) {
       return findItem();
     } else if (selectedTag === "") {
