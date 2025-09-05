@@ -80,13 +80,14 @@ export default function HomeScreen() {
   };
 
   const whatDatabaseToUse = () => {
+    console.log("tag", selectedTag);
     if (shouldShowResult) {
       return findItem();
-    } else if (selectedTag !== "") {
-      return findAllBooksByTag(selectedTag);
+    } else if (selectedTag === "") {
+      return mockBookList;
     }
 
-    return mockBookList;
+    return findAllBooksByTag(selectedTag);
 
     // return [];
   };
@@ -127,6 +128,10 @@ export default function HomeScreen() {
         </Text>
       </View>
     );
+  };
+
+  const onPressBook = (isbnCode: string) => {
+    router.push({ pathname: "/BookScreen", params: { isbn: isbnCode } });
   };
 
   return (
@@ -176,6 +181,7 @@ export default function HomeScreen() {
 
         {showCollections ? (
           <SectionGrid
+            contentContainerStyle={styles.flatgrid}
             onScroll={handleFAB}
             itemDimension={130}
             sections={collections}
@@ -185,6 +191,9 @@ export default function HomeScreen() {
                   title={item.title}
                   author={item.author}
                   volume={item.volume}
+                  onPress={(isbnCode) => onPressBook(isbnCode)}
+                  isbn={item.isbn}
+                  image={item.image}
                 />
               </View>
             )}
@@ -197,6 +206,7 @@ export default function HomeScreen() {
           />
         ) : (
           <FlatGrid
+            contentContainerStyle={styles.flatgrid}
             ListEmptyComponent={renderEmptyComponent}
             itemDimension={130}
             showsVerticalScrollIndicator={false}
@@ -209,6 +219,9 @@ export default function HomeScreen() {
                   title={item.title}
                   author={item.author}
                   volume={item.volume}
+                  onPress={(isbnCode) => onPressBook(isbnCode)}
+                  isbn={item.isbn}
+                  image={item.image}
                 />
               </View>
             )}
@@ -296,5 +309,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: Dimensions.margin.divider,
+  },
+  flatgrid: {
+    paddingBottom: 150,
   },
 });

@@ -4,6 +4,8 @@ type BookListItemType = {
   author: string;
   collection: string;
   volume: string;
+  isbn: string;
+  image: string;
   type?: BookKindType;
   tags: string[];
 };
@@ -74,6 +76,9 @@ export const mockBookList: BookList = [
     collection: "O Senhor dos Anéis",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção completa", "Minha casa"],
+    isbn: "9780261103573",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/8/8e/The_Fellowship_of_the_Ring_cover.gif",
   },
   {
     id: "2",
@@ -82,6 +87,9 @@ export const mockBookList: BookList = [
     collection: "O Senhor dos Anéis",
     volume: "2",
     tags: ["Livro", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9780261102361",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/a/a0/The_Two_Towers_cover.gif",
   },
   {
     id: "3",
@@ -90,6 +98,9 @@ export const mockBookList: BookList = [
     collection: "O Senhor dos Anéis",
     volume: "3",
     tags: ["Livro", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9780261102378",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/1/11/The_Return_of_the_King_cover.gif",
   },
 
   // --- Ursula K. Le Guin - Terramar ---
@@ -100,6 +111,8 @@ export const mockBookList: BookList = [
     collection: "Ciclo Terramar",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "12345678",
+    image: "https://example.com/broken/terramar1.jpg",
   },
   {
     id: "5",
@@ -108,6 +121,8 @@ export const mockBookList: BookList = [
     collection: "Ciclo Terramar",
     volume: "2",
     tags: ["Livro", "Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9780140304770",
+    image: "https://images-na.ssl-images-amazon.com/images/I/81z5X8HkVbL.jpg",
   },
   {
     id: "6",
@@ -116,6 +131,8 @@ export const mockBookList: BookList = [
     collection: "Ciclo Terramar",
     volume: "3",
     tags: ["Livro", "Não Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9780689845338",
+    image: "https://example.com/broken/terramar3.png",
   },
   {
     id: "7",
@@ -124,6 +141,8 @@ export const mockBookList: BookList = [
     collection: "Ciclo Terramar",
     volume: "4",
     tags: ["Livro", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "87654321",
+    image: "https://m.media-amazon.com/images/I/71x+AfPquPL.jpg",
   },
 
   // --- Percy Jackson ---
@@ -134,6 +153,8 @@ export const mockBookList: BookList = [
     collection: "Percy Jackson",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781423134947",
+    image: "https://images-na.ssl-images-amazon.com/images/I/91HHqVTAJQL.jpg",
   },
   {
     id: "9",
@@ -142,6 +163,8 @@ export const mockBookList: BookList = [
     collection: "Percy Jackson",
     volume: "2",
     tags: ["Livro", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781423145509",
+    image: "https://example.com/broken/percy2.jpg",
   },
   {
     id: "10",
@@ -150,9 +173,11 @@ export const mockBookList: BookList = [
     collection: "Percy Jackson",
     volume: "3",
     tags: ["Livro", "Não Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781423148227",
+    image: "https://images-na.ssl-images-amazon.com/images/I/81t2CVWEsUL.jpg",
   },
 
-  // --- One Piece (mangá) ---
+  // --- One Piece ---
   {
     id: "11",
     title: "One Piece Vol. 1",
@@ -160,6 +185,9 @@ export const mockBookList: BookList = [
     collection: "One Piece",
     volume: "1",
     tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9781569319017",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/2/29/OnePieceVol01Cover.jpg",
   },
   {
     id: "12",
@@ -168,6 +196,8 @@ export const mockBookList: BookList = [
     collection: "One Piece",
     volume: "2",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "12349876",
+    image: "https://example.com/broken/onepiece2.png",
   },
   {
     id: "13",
@@ -176,6 +206,8 @@ export const mockBookList: BookList = [
     collection: "One Piece",
     volume: "3",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "9781569319024",
+    image: "https://m.media-amazon.com/images/I/51h1vKmqk1L.jpg",
   },
   {
     id: "14",
@@ -184,6 +216,8 @@ export const mockBookList: BookList = [
     collection: "One Piece",
     volume: "4",
     tags: ["Mangá", "Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "9781569319031",
+    image: "https://example.com/broken/onepiece4.jpg",
   },
   {
     id: "15",
@@ -192,9 +226,12 @@ export const mockBookList: BookList = [
     collection: "One Piece",
     volume: "5",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9876543212345",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/4/4f/OnePieceVol05Cover.jpg",
   },
 
-  // --- Naruto (mangá) ---
+  // --- Naruto ---
   {
     id: "16",
     title: "Naruto Vol. 1",
@@ -202,6 +239,9 @@ export const mockBookList: BookList = [
     collection: "Naruto",
     volume: "1",
     tags: ["Mangá", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781569319000",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/9/94/NarutoCoverTankobon1.jpg",
   },
   {
     id: "17",
@@ -210,6 +250,8 @@ export const mockBookList: BookList = [
     collection: "Naruto",
     volume: "2",
     tags: ["Mangá", "Não Lido", "Coleção completa", "Minha casa"],
+    isbn: "23456789",
+    image: "https://example.com/broken/naruto2.png",
   },
   {
     id: "18",
@@ -218,9 +260,11 @@ export const mockBookList: BookList = [
     collection: "Naruto",
     volume: "3",
     tags: ["Mangá", "Lido", "Coleção completa", "Casa de Mãe"],
+    isbn: "9781569319017",
+    image: "https://m.media-amazon.com/images/I/81Xikn0DJBL.jpg",
   },
 
-  // --- Death Note (mangá) ---
+  // --- Death Note ---
   {
     id: "19",
     title: "Death Note Vol. 1",
@@ -228,6 +272,9 @@ export const mockBookList: BookList = [
     collection: "Death Note",
     volume: "1",
     tags: ["Mangá", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781421501680",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/6/6f/Death_Note_Vol_1.jpg",
   },
   {
     id: "20",
@@ -236,9 +283,11 @@ export const mockBookList: BookList = [
     collection: "Death Note",
     volume: "2",
     tags: ["Mangá", "Não Lido", "Coleção completa", "Minha casa"],
+    isbn: "8765432198765",
+    image: "https://example.com/broken/deathnote2.jpg",
   },
 
-  // --- Akira (mangá) ---
+  // --- Akira ---
   {
     id: "21",
     title: "Akira Vol. 1",
@@ -246,6 +295,9 @@ export const mockBookList: BookList = [
     collection: "Akira",
     volume: "1",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "9781935429005",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/5/5e/Akira_volume_1_cover.jpg",
   },
   {
     id: "22",
@@ -254,6 +306,8 @@ export const mockBookList: BookList = [
     collection: "Akira",
     volume: "2",
     tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "1234567890123",
+    image: "https://example.com/broken/akira2.png",
   },
 
   // --- HQs ---
@@ -264,6 +318,9 @@ export const mockBookList: BookList = [
     collection: "Batman",
     volume: "1",
     tags: ["HQ", "Lido", "Coleção completa", "Minha casa"],
+    isbn: "9781401207526",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/9/9d/Batman_Year_One_cover.jpg",
   },
   {
     id: "24",
@@ -272,6 +329,8 @@ export const mockBookList: BookList = [
     collection: "Batman",
     volume: "2",
     tags: ["HQ", "Não Lido", "Coleção completa", "Minha casa"],
+    isbn: "2345678123456",
+    image: "https://example.com/broken/batman2.jpg",
   },
   {
     id: "25",
@@ -280,6 +339,8 @@ export const mockBookList: BookList = [
     collection: "Watchmen",
     volume: "1",
     tags: ["HQ", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9780930289232",
+    image: "https://upload.wikimedia.org/wikipedia/en/5/5a/Watchmen-cover.jpg",
   },
   {
     id: "26",
@@ -288,6 +349,8 @@ export const mockBookList: BookList = [
     collection: "Sandman",
     volume: "1",
     tags: ["HQ", "Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9781401225759",
+    image: "https://example.com/broken/sandman1.png",
   },
   {
     id: "27",
@@ -296,9 +359,11 @@ export const mockBookList: BookList = [
     collection: "Sandman",
     volume: "2",
     tags: ["HQ", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "8765432187654",
+    image: "https://m.media-amazon.com/images/I/81JfLxXJhQL.jpg",
   },
 
-  // --- Obras volume único ---
+  // --- Obras únicas ---
   {
     id: "28",
     title: "A Mão Esquerda da Escuridão",
@@ -306,6 +371,8 @@ export const mockBookList: BookList = [
     collection: "A Mão Esquerda da Escuridão",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção única", "Minha casa"],
+    isbn: "9780441478125",
+    image: "https://example.com/broken/mao-esquerda.jpg",
   },
   {
     id: "29",
@@ -314,6 +381,8 @@ export const mockBookList: BookList = [
     collection: "O Nome do Vento",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Casa de Mãe"],
+    isbn: "12344321",
+    image: "https://m.media-amazon.com/images/I/81p+xe8cbnL.jpg",
   },
   {
     id: "30",
@@ -322,6 +391,8 @@ export const mockBookList: BookList = [
     collection: "1984",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9780451524935",
+    image: "https://upload.wikimedia.org/wikipedia/en/c/c3/1984first.jpg",
   },
   {
     id: "31",
@@ -330,6 +401,8 @@ export const mockBookList: BookList = [
     collection: "A Revolução dos Bichos",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção única", "Minha casa"],
+    isbn: "9780451526342",
+    image: "https://example.com/broken/revolucao.jpg",
   },
   {
     id: "32",
@@ -338,6 +411,9 @@ export const mockBookList: BookList = [
     collection: "Dom Casmurro",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Casa de Mãe"],
+    isbn: "9788520926022",
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/c/c3/Dom_Casmurro.jpg",
   },
   {
     id: "33",
@@ -346,6 +422,8 @@ export const mockBookList: BookList = [
     collection: "Memórias Póstumas de Brás Cubas",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "23456781",
+    image: "https://example.com/broken/bras-cubas.jpg",
   },
   {
     id: "34",
@@ -354,6 +432,8 @@ export const mockBookList: BookList = [
     collection: "Grande Sertão: Veredas",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção única", "Minha casa"],
+    isbn: "9788526013320",
+    image: "https://m.media-amazon.com/images/I/81UvZAfhMUL.jpg",
   },
   {
     id: "35",
@@ -362,6 +442,8 @@ export const mockBookList: BookList = [
     collection: "Ensaio Sobre a Cegueira",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9780156007757",
+    image: "https://example.com/broken/ensaio.jpg",
   },
   {
     id: "36",
@@ -370,6 +452,9 @@ export const mockBookList: BookList = [
     collection: "O Conto da Aia",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção única", "Casa de Mãe"],
+    isbn: "9780385490818",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/6/62/TheHandmaidsTale%281stEd%29.jpg",
   },
   {
     id: "37",
@@ -378,6 +463,8 @@ export const mockBookList: BookList = [
     collection: "Fahrenheit 451",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9788525052247",
+    image: "https://m.media-amazon.com/images/I/51tAD6LyZ-L.jpg",
   },
   {
     id: "38",
@@ -386,6 +473,9 @@ export const mockBookList: BookList = [
     collection: "A Metamorfose",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9780140184784",
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/5/5e/DieVerwandlung.jpg",
   },
   {
     id: "39",
@@ -394,6 +484,8 @@ export const mockBookList: BookList = [
     collection: "O Hobbit",
     volume: "1",
     tags: ["Livro", "Não Lido", "Coleção única", "Casa de Mãe"],
+    isbn: "9780261102217",
+    image: "https://example.com/broken/hobbit.jpg",
   },
   {
     id: "40",
@@ -402,9 +494,12 @@ export const mockBookList: BookList = [
     collection: "O Silmarillion",
     volume: "1",
     tags: ["Livro", "Lido", "Coleção única", "Minha casa"],
+    isbn: "9780618391110",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/7/72/The_Silmarillion%2C_Houghton_Mifflin_edition.jpg",
   },
 
-  // --- Mais Mangás para completar ---
+  // --- Mais Mangás ---
   {
     id: "41",
     title: "Fullmetal Alchemist Vol. 1",
@@ -412,6 +507,8 @@ export const mockBookList: BookList = [
     collection: "Fullmetal Alchemist",
     volume: "1",
     tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "9781591169208",
+    image: "https://m.media-amazon.com/images/I/81ZVJmwGq4L.jpg",
   },
   {
     id: "42",
@@ -420,6 +517,8 @@ export const mockBookList: BookList = [
     collection: "Fullmetal Alchemist",
     volume: "2",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Minha casa"],
+    isbn: "1234432198765",
+    image: "https://example.com/broken/fma2.jpg",
   },
   {
     id: "43",
@@ -428,6 +527,9 @@ export const mockBookList: BookList = [
     collection: "Attack on Titan",
     volume: "1",
     tags: ["Mangá", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "9781612620244",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/0/0c/Attack_on_Titan_volume_1_cover.jpg",
   },
   {
     id: "44",
@@ -436,53 +538,7 @@ export const mockBookList: BookList = [
     collection: "Attack on Titan",
     volume: "2",
     tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
-  },
-  {
-    id: "45",
-    title: "Dragon Ball Vol. 1",
-    author: "Akira Toriyama",
-    collection: "Dragon Ball",
-    volume: "1",
-    tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
-  },
-  {
-    id: "46",
-    title: "Dragon Ball Vol. 2",
-    author: "Akira Toriyama",
-    collection: "Dragon Ball",
-    volume: "2",
-    tags: ["Mangá", "Não Lido", "Coleção incompleta", "Minha casa"],
-  },
-  {
-    id: "47",
-    title: "Berserk Vol. 1",
-    author: "Kentaro Miura",
-    collection: "Berserk",
-    volume: "1",
-    tags: ["Mangá", "Lido", "Coleção incompleta", "Casa de Mãe"],
-  },
-  {
-    id: "48",
-    title: "Berserk Vol. 2",
-    author: "Kentaro Miura",
-    collection: "Berserk",
-    volume: "2",
-    tags: ["Mangá", "Não Lido", "Coleção incompleta", "Minha casa"],
-  },
-  {
-    id: "49",
-    title: "Bleach Vol. 1",
-    author: "Tite Kubo",
-    collection: "Bleach",
-    volume: "1",
-    tags: ["Mangá", "Lido", "Coleção incompleta", "Minha casa"],
-  },
-  {
-    id: "50",
-    title: "Bleach Vol. 2",
-    author: "Tite Kubo",
-    collection: "Bleach",
-    volume: "2",
-    tags: ["Mangá", "Não Lido", "Coleção incompleta", "Casa de Mãe"],
+    isbn: "9781612620251",
+    image: "https://example.com/broken/aot2.png",
   },
 ];

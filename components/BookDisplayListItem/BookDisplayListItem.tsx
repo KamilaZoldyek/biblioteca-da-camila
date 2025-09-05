@@ -17,7 +17,8 @@ type BookDisplayListItemProps = {
   author: string;
   volume: string;
   image?: string;
-  onPress?: () => void;
+  isbn: string;
+  onPress: (isbn: string) => void;
 };
 
 export default function BookDisplayListItem({
@@ -26,14 +27,20 @@ export default function BookDisplayListItem({
   author,
   volume,
   image,
+  isbn,
   onPress,
 }: BookDisplayListItemProps) {
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={() => onPress(isbn)}>
       <View style={styles.container}>
         <Image
+          contentFit="contain"
+          placeholderContentFit="contain"
+          transition={500}
+          allowDownscaling
           style={styles.image}
-          source={require("../../assets/images/book-placeholder.svg")}
+          placeholder={require("../../assets/images/book-placeholder.svg")}
+          source={image}
         />
         <Text
           style={styles.text}
@@ -57,9 +64,12 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: Dimensions.padding.container,
-
     maxWidth: 150,
     maxHeight: 320,
   },
-  image: { width: 150, height: 200, borderRadius: Dimensions.borderRadius.bookCover, },
+  image: {
+    width: 150,
+    height: 250,
+   //borderRadius: Dimensions.borderRadius.bookCover,
+  },
 });
