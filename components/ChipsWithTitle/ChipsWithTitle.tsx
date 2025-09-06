@@ -11,6 +11,7 @@ type ChipsWithTitleProps = {
   data: string[];
   isRating?: boolean;
   title: string;
+  defaultValue?: string;
 };
 
 export default function ChipsWithTitle({
@@ -20,8 +21,9 @@ export default function ChipsWithTitle({
   data,
   isRating,
   title,
+  defaultValue,
 }: ChipsWithTitleProps) {
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(defaultValue ? defaultValue : "");
 
   const ripple = {
     color: Colors.dark.primary,
