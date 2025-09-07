@@ -24,6 +24,8 @@ export const Strings = {
   loginScreen: {
     screenName: "LoginScreen",
     title: "Login",
+    password: 'Senha',
+    visitor: 'Entrar como visitante',
   },
   aboutScreen: {
     screenName: "AboutScreen",

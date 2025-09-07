@@ -1,4 +1,4 @@
-import { Container, LoadingOverlay, TagList } from "@/components";
+import { Container, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Colors, Dimensions, Strings } from "@/constants/";
 import {
@@ -33,13 +33,17 @@ export default function HomeScreen() {
   const handleConfigScreen = () => {
     router.navigate("/ConfigsScreen");
   };
-  const handleAboutScreen = () => {
-    router.navigate("/AboutScreen");
+  // const handleAboutScreen = () => {
+  //   router.navigate("/AboutScreen");
+  // };
+   const handleAboutScreen = () => {
+    router.navigate("/LoginScreen");
   };
 
   const handleSearch = (query: string) => {
     setSelectedTag("");
     setShouldShowResult(true);
+    setShowCollections(false);
     setSearchQuery(query);
     if (query === "") {
       setShouldShowResult(false);
@@ -94,6 +98,8 @@ export default function HomeScreen() {
   const handleSelectedTag = (tag: string) => {
     setSelectedTag(tag);
     setShowCollections(false);
+    setShouldShowResult(false);
+    setSearchQuery('');
   };
 
   useEffect(() => {

@@ -13,6 +13,7 @@ type ContainerProps = {
   onPressIconRight?: () => void;
   showGoBack?: boolean;
   customGoBack?: () => void;
+  paddingBottom?: boolean;
 };
 
 export default function Container({
@@ -24,6 +25,7 @@ export default function Container({
   onPressIconLeft,
   onPressIconRight,
   customGoBack,
+  paddingBottom,
 }: ContainerProps) {
   const handleGoBack = () => {
     router.back();
@@ -47,7 +49,7 @@ export default function Container({
       </Appbar.Header>
       <View style={styles.container}>
         {children}
-        <View style={{ paddingBottom: 50 }} />
+        {paddingBottom && <View style={{ paddingBottom: 50 }} />}
       </View>
     </>
   );
