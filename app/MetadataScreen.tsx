@@ -541,15 +541,6 @@ export default function MetadataScreen() {
               {collectionStatusBlock()}
               {renderCoverBlock()}
 
-              <View style={{ paddingBottom: 50 }} />
-
-              <Text variant="titleLarge">
-                {Strings.metadataScreen.opinionTitle}
-              </Text>
-              <Divider bold style={styles.largeMarginBottom} />
-
-              {renderRatingBlock()}
-              {renderReviewBlock()}
               <CustomCard
                 title={Strings.metadataScreen.manualScrapingTitle}
                 subtitle={Strings.metadataScreen.manualScrapingDescription}
@@ -560,6 +551,16 @@ export default function MetadataScreen() {
               <View style={styles.chipBlock}>
                 <ISBNSearchButton onPress={() => setShowWebview(true)} />
               </View>
+
+              <View style={{ paddingBottom: 50 }} />
+
+              <Text variant="titleLarge">
+                {Strings.metadataScreen.opinionTitle}
+              </Text>
+              <Divider bold style={styles.largeMarginBottom} />
+
+              {renderRatingBlock()}
+              {renderReviewBlock()}
               <View style={{ paddingBottom: 120 }} />
 
               <LongButton
@@ -568,7 +569,7 @@ export default function MetadataScreen() {
                 theme={theme}
                 disabled={!formState.isValid}
               />
-              <View style={{ paddingBottom: 20 }} />
+              <View style={{ padding: 20 }} />
             </ScrollView>
           </KeyboardAvoidingView>
         </Container>
@@ -611,26 +612,6 @@ export default function MetadataScreen() {
 }
 
 const styles = StyleSheet.create({
-  alarmSection: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    paddingVertical: Dimensions.padding.divider,
-  },
-  darkModeSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  timeSection: {
-    paddingTop: Dimensions.padding.container,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  time: {
-    alignSelf: "flex-end",
-  },
   textInputs: {
     marginBottom: Dimensions.padding.dividerInput,
   },

@@ -1,19 +1,110 @@
-import { View } from "react-native";
-import { Text } from 'react-native-paper';
-import * as React from 'react';
+import { Container, LogoTitle, LongButton } from "@/components";
+import { Dimensions, Strings } from "@/constants/";
+import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { StyleSheet, useColorScheme, View } from "react-native";
+import { TextInput } from "react-native-paper";
 
 export default function LoginScreen() {
+  const colorScheme = useColorScheme();
+
+  const { control, handleSubmit, formState } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      login: "",
+      password: "",
+    },
+  });
+
+  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    storedThemeDataOrColorScheme(colorScheme).then((mode) => {
+      setTheme(mode);
+    });
+  }, [colorScheme, setTheme]);
+
+  const onLoginPress = () => {
+    console.log("click");
+  };
+  const onVisitorPress = () => {
+    console.log("click");
+  };
+
   return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text>hello</Text>
-        <Text variant="displayLarge">Display Large</Text>
+    <Container title={""}>
+      <View style={styles.container}>
+        <LogoTitle />
       </View>
+      <View style={styles.buttons}>
+        <Controller
+          rules={{ required: Strings.loginScreen.title }}
+          control={control}
+          name={"login"}
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.textInputs}>
+              <TextInput
+                label={Strings.loginScreen.title}
+                value={value}
+                onChangeText={onChange}
+                mode="outlined"
+                error={value === ""}
+              />
+            </View>
+          )}
+        />
+        <Controller
+          rules={{ required: Strings.loginScreen.password }}
+          control={control}
+          name={"password"}
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.textInputs}>
+              <TextInput
+                secureTextEntry={showPassword}
+                right={
+                  <TextInput.Icon
+                    icon={showPassword ? "eye" : "eye-off"}
+                    onPress={() => setShowPassword(!showPassword)}
+                  />
+                }
+                label={Strings.loginScreen.password}
+                value={value}
+                onChangeText={onChange}
+                mode="outlined"
+                error={value === ""}
+              />
+            </View>
+          )}
+        />
+        <LongButton
+          text={Strings.loginScreen.title}
+          onPress={handleSubmit(onLoginPress)}
+          theme={theme}
+          disabled={!formState.isValid}
+        />
+      </View>
+      <LongButton
+        text={Strings.loginScreen.visitor}
+        onPress={onVisitorPress}
+        theme={theme}
+      />
+    </Container>
   );
 }
 
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    paddingVertical: Dimensions.padding.divider,
+  },
+  buttons: {
+    justifyContent: "space-between",
+    paddingVertical: Dimensions.padding.divider,
+  },
+  textInputs: {
+    marginBottom: Dimensions.padding.dividerInput,
+  },
+});
