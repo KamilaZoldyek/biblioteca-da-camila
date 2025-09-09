@@ -498,15 +498,6 @@ export default function MetadataScreen() {
           showGoBack
           customGoBack={() => setShowGoBackModal(true)}
         >
-          {/* TODO: TIRAR o keyboard avoiding view quando exportar pq não precisa */}
-          {/* TODO: Adicionar 
-          <activity
-          android:name=".MainActivity"
-          android:windowSoftInputMode="adjustResize"
-          android:exported="true"
-          ... >
-        no android.manifest pra funcionar e depois tirar o comentário da scrollview
-      */}
 
           <KeyboardAvoidingView
             behavior="padding"
@@ -514,13 +505,6 @@ export default function MetadataScreen() {
           >
             <ScrollView
               showsVerticalScrollIndicator={false}
-              // contentContainerStyle={{
-              //   flexGrow: 1,
-              //   justifyContent: "flex-end",
-              //   padding: 16,
-              // }}
-              // keyboardShouldPersistTaps="handled"
-              // keyboardDismissMode="on-drag"
             >
               <Text variant="titleLarge">
                 {Strings.metadataScreen.metadataTitle}
