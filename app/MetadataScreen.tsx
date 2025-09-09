@@ -8,7 +8,13 @@ import {
   LongButton,
 } from "@/components";
 import { Colors, Dimensions, Strings } from "@/constants/";
+import { api } from "@/services/api";
 import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
+import {
+  GoogleBookItem,
+  GoogleBooksListResponse,
+  VolumeInfo,
+} from "@/types/GoogleApiTypes";
 import * as ImagePicker from "expo-image-picker";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
@@ -44,7 +50,20 @@ export default function MetadataScreen() {
   const RATING_LIST = ["N/A", "1", "2", "3", "4", "5"];
   //TODO isso provavelmente vai virar um type, assim como os outros
 
-  const { control, handleSubmit, watch, formState } = useForm({
+  const [data, setData] = useState<GoogleBookItem[]>();
+  const [bookInfo, setBookInfo] = useState<VolumeInfo>();
+
+  const [hasReview, setHasReview] = useState(true);
+  const [hasSynopsis, setHasSynopsis] = useState(true);
+
+  const [uploadCoverName, setUploadCoverName] = useState<string | null>(null);
+
+  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+  const [showWebview, setShowWebview] = useState(false);
+  const [showGoBackModal, setShowGoBackModal] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+
+  const { control, handleSubmit, formState, reset } = useForm({
     mode: "onChange",
     defaultValues: {
       bookTitle: "",
@@ -64,15 +83,23 @@ export default function MetadataScreen() {
     },
   });
 
-  const [hasReview, setHasReview] = useState(true);
-  const [hasSynopsis, setHasSynopsis] = useState(true);
+  useEffect(() => {
+    if (bookInfo) {
+      reset({
+        bookTitle: bookInfo.title,
+        author: bookInfo.authors[0],
+        publisher: bookInfo.publisher,
+        synopsis: bookInfo.description,
+        year: bookInfo.publishedDate,
+      });
+    }
+  }, [bookInfo, reset]);
 
-  const [uploadCoverName, setUploadCoverName] = useState<string | null>(null);
-
-  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
-  const [showWebview, setShowWebview] = useState(false);
-  const [showGoBackModal, setShowGoBackModal] = useState(false);
-  const [showLoading, setShowLoading] = useState(false);
+  useEffect(() => {
+    if (bookInfo?.imageLinks?.thumbnail) {
+      setUploadCoverName(bookInfo?.imageLinks?.thumbnail);
+    }
+  }, [bookInfo]);
 
   const delay = (milliseconds: number) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -88,6 +115,27 @@ export default function MetadataScreen() {
   useEffect(() => {
     handleLoading();
   }, []);
+
+  useEffect(() => {
+    const loadFromAPI = async () => {
+      await api
+        .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN)
+        .then((response) => {
+          if (response.data) {
+            console.log("response.data.items", response.data.items);
+            setData(response.data.items);
+            setBookInfo(response.data.items[0].volumeInfo);
+          } else {
+            console.log("F");
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    loadFromAPI();
+  }, [ISBN]);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -498,14 +546,11 @@ export default function MetadataScreen() {
           showGoBack
           customGoBack={() => setShowGoBackModal(true)}
         >
-
           <KeyboardAvoidingView
             behavior="padding"
             keyboardVerticalOffset={Platform.select({ ios: 64, android: 120 })}
           >
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-            >
+            <ScrollView showsVerticalScrollIndicator={false}>
               <Text variant="titleLarge">
                 {Strings.metadataScreen.metadataTitle}
               </Text>
