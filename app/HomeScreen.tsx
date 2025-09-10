@@ -37,7 +37,7 @@ export default function HomeScreen() {
   //   router.navigate("/AboutScreen");
   // };
    const handleAboutScreen = () => {
-    router.navigate("/LoginScreen");
+    router.navigate("/SignUpScreen");
   };
 
   const handleSearch = (query: string) => {
