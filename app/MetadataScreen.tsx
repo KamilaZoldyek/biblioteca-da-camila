@@ -98,6 +98,8 @@ export default function MetadataScreen() {
   useEffect(() => {
     if (bookInfo?.imageLinks?.thumbnail) {
       setUploadCoverName(bookInfo?.imageLinks?.thumbnail);
+    } else if (bookInfo?.imageLinks?.large) {
+      setUploadCoverName(bookInfo?.imageLinks?.large);
     }
   }, [bookInfo]);
 
@@ -119,14 +121,14 @@ export default function MetadataScreen() {
   useEffect(() => {
     const loadFromAPI = async () => {
       await api
-        .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN)
+        .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
         .then((response) => {
           if (response.data) {
             console.log("response.data.items", response.data.items);
             setData(response.data.items);
             setBookInfo(response.data.items[0].volumeInfo);
           } else {
-            console.log("F");
+            console.log("F"); //press F to pay respect
           }
         })
         .catch((error) => {

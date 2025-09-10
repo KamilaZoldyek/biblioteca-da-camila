@@ -103,6 +103,10 @@ export default function RootLayout() {
               name={Strings.bookScreen.screenName}
               options={{ title: Strings.bookScreen.title }}
             />
+            <Stack.Screen
+              name={'SignUpScreen'}
+              options={{ title: 'Cadastro', headerShown: false }}
+            />
           </Stack>
         </View>
       </ThemeProvider>
