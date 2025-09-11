@@ -1,6 +1,5 @@
-import HomeScreen from "./HomeScreen";
+import LoginScreen from "./LoginScreen";
 
-export default HomeScreen;
-
+export default LoginScreen;
 
 //TODO: mudar aqui pra tela inicial ser a LoginScreen
