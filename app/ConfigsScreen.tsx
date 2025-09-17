@@ -51,6 +51,8 @@ export default function ConfigsScreen() {
     [setVisible]
   );
 
+  //TODO: adicionar mais coisas como logout e nome do usuário, talvez
+
   return (
     <Container title={Strings.configsScreen.title} showGoBack>
       <View style={styles.alarmSection}>
