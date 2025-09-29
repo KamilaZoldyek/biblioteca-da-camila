@@ -14,7 +14,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { TextInput } from "react-native-paper";
+import { ActivityIndicator, TextInput } from "react-native-paper";
 
 type FormData = {
   login: string;
@@ -34,6 +34,7 @@ export default function LoginScreen() {
 
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [showPassword, setShowPassword] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -42,17 +43,19 @@ export default function LoginScreen() {
   }, [colorScheme, setTheme]);
 
   const onLoginPress = async (formData: FormData) => {
+    setShowLoading(true);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: formData.login.trim(),
       password: formData.password.trim(),
     });
 
     if (error) {
-      console.log(error);
+      setShowLoading(false);
+      console.log("login error", error);
       return;
     }
-
-    console.log(data);
+    setShowLoading(false);
     router.replace("/HomeScreen");
   };
   const onVisitorPress = () => {
@@ -111,12 +114,16 @@ export default function LoginScreen() {
                 </View>
               )}
             />
-            <LongButton
-              text={Strings.loginScreen.title}
-              onPress={handleSubmit(onLoginPress)}
-              theme={theme}
-              disabled={!formState.isValid}
-            />
+            {showLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <LongButton
+                text={Strings.loginScreen.title}
+                onPress={handleSubmit(onLoginPress)}
+                theme={theme}
+                disabled={!formState.isValid}
+              />
+            )}
           </View>
           <LongButton
             text={Strings.loginScreen.visitor}

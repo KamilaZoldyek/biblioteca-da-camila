@@ -20,12 +20,23 @@ export const Strings = {
     darkMode: "Modo escuro",
     timePickerLabel: "Escolha um horário",
     timePickerCancelLabel: "Cancelar",
+    account: "Conta",
+    logOut: 'Log out',
+    deleteAccount: 'Apagar conta'
   },
   loginScreen: {
     screenName: "LoginScreen",
     title: "Login",
     password: 'Senha',
     visitor: 'Criar nova conta',
+  },
+  signUpScreen:{
+    screenName: 'SignUpScreen',
+    title: 'Nova conta',
+    emailPlaceholder: 'Insira seu email',
+    passwordPlaceholder: 'Crie uma senha',
+    button: 'Criar nova conta'
+
   },
   aboutScreen: {
     screenName: "AboutScreen",

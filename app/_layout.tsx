@@ -63,11 +63,11 @@ export default function RootLayout() {
     useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session)=> {
       if(session) {
-        setAuth(session.user);
+      //  setAuth(session.user);
         router.replace('/HomeScreen');
         return;
       }
-      setAuth(null)
+     // setAuth(null)
       router.replace('/LoginScreen');
     }) 
   }, [setAuth]);

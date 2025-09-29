@@ -14,7 +14,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { TextInput } from "react-native-paper";
+import { ActivityIndicator, TextInput } from "react-native-paper";
 
 type FormData = {
   login: string;
@@ -35,6 +35,8 @@ export default function SignUpScreen() {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [showPassword, setShowPassword] = useState(true);
 
+  const [showLoading, setShowLoading] = useState(false);
+
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
       setTheme(mode);
@@ -42,22 +44,32 @@ export default function SignUpScreen() {
   }, [colorScheme, setTheme]);
 
   const onSignUpPress = async (formData: FormData) => {
+    setShowLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email: formData.login.trim(),
       password: formData.password.trim(),
     });
 
     if (error) {
+      setShowLoading(false);
       console.log(error);
       return;
     }
 
-    console.log(data);
+    setShowLoading(false);
+    router.replace("/LoginScreen");
+  };
+
+  const onGoBack = () => {
     router.replace("/LoginScreen");
   };
 
   return (
-    <Container title={""}>
+    <Container
+      showGoBack
+      customGoBack={onGoBack}
+      title={Strings.signUpScreen.title}
+    >
       <KeyboardAvoidingView
         behavior="padding"
         keyboardVerticalOffset={Platform.select({ ios: 64, android: 120 })}
@@ -76,7 +88,7 @@ export default function SignUpScreen() {
                   <TextInput
                     autoCapitalize="none"
                     inputMode="email"
-                    label={Strings.loginScreen.title}
+                    label={Strings.signUpScreen.emailPlaceholder}
                     value={value}
                     onChangeText={onChange}
                     mode="outlined"
@@ -99,7 +111,7 @@ export default function SignUpScreen() {
                         onPress={() => setShowPassword(!showPassword)}
                       />
                     }
-                    label={Strings.loginScreen.password}
+                    label={Strings.signUpScreen.passwordPlaceholder}
                     value={value}
                     onChangeText={onChange}
                     mode="outlined"
@@ -108,12 +120,16 @@ export default function SignUpScreen() {
                 </View>
               )}
             />
-            <LongButton
-              text={"Cadastra"}
-              onPress={handleSubmit(onSignUpPress)}
-              theme={theme}
-              disabled={!formState.isValid}
-            />
+            {showLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <LongButton
+                text={Strings.signUpScreen.button}
+                onPress={handleSubmit(onSignUpPress)}
+                theme={theme}
+                disabled={!formState.isValid}
+              />
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

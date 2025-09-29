@@ -1,18 +1,21 @@
 import { Container } from "@/components";
-import { Dimensions, Strings } from "@/constants/";
+import { Colors, Dimensions, Strings } from "@/constants/";
+import { supabase } from "@/lib/supabase";
 import {
   setStoredThemeData,
   storedThemeDataOrColorScheme,
 } from "@/Storage/ThemeData";
+import { router } from "expo-router";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Appearance, StyleSheet, useColorScheme, View } from "react-native";
-import { Button, Switch, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Switch, Text } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 
 export default function ConfigsScreen() {
   const colorScheme = useColorScheme();
 
+  const [userName, setUserName] = useState("");
   const [isDarkModeOn, setIsDarkModeOn] = useState(true);
   const [visible, setVisible] = useState(false);
   const [hour, setHour] = useState(12);
@@ -25,6 +28,19 @@ export default function ConfigsScreen() {
       setIsDarkModeOn(mode === "dark");
     });
   }, [colorScheme, setTheme, setIsDarkModeOn]);
+
+  useEffect(() => {
+    async function check() {
+      const { data: userData } = await supabase.auth.getUser();
+      setUserName(userData.user?.email || "");
+    }
+    check();
+  }, []);
+
+  const onLogOut = async () => {
+    await supabase.auth.signOut();
+    router.replace("/LoginScreen");
+  };
 
   const onToggleDarkMode = () => {
     if (theme === "light") {
@@ -80,6 +96,37 @@ export default function ConfigsScreen() {
         <Switch value={isDarkModeOn} onValueChange={onToggleDarkMode}></Switch>
       </View>
 
+      <View style={styles.alarmSection}>
+        <Text variant="titleMedium">{Strings.configsScreen.account}</Text>
+
+        {userName === "" ? (
+          <ActivityIndicator />
+        ) : (
+          <Text variant="bodyMedium">{userName}</Text>
+        )}
+
+        <View style={styles.timeSection}>
+          <Button
+            style={{ marginRight: Dimensions.padding.halfContainer }}
+            onPress={onLogOut}
+            uppercase={false}
+            mode="contained"
+          >
+            {Strings.configsScreen.logOut}
+          </Button>
+
+          <Button
+            textColor={Colors.dark.onError}
+            buttonColor={Colors.dark.error}
+            icon={"alert"}
+            uppercase={false}
+            mode="contained"
+          >
+            {Strings.configsScreen.deleteAccount}
+          </Button>
+        </View>
+      </View>
+
       <TimePickerModal
         label={Strings.configsScreen.timePickerLabel}
         cancelLabel={Strings.configsScreen.timePickerCancelLabel}
@@ -113,5 +160,11 @@ const styles = StyleSheet.create({
   },
   time: {
     alignSelf: "flex-end",
+  },
+  buttons: {
+    paddingTop: Dimensions.padding.container,
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
   },
 });

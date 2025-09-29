@@ -33,11 +33,8 @@ export default function HomeScreen() {
   const handleConfigScreen = () => {
     router.navigate("/ConfigsScreen");
   };
-  // const handleAboutScreen = () => {
-  //   router.navigate("/AboutScreen");
-  // };
-   const handleAboutScreen = () => {
-    router.navigate("/SignUpScreen");
+  const handleAboutScreen = () => {
+    router.navigate("/AboutScreen");
   };
 
   const handleSearch = (query: string) => {
@@ -99,7 +96,7 @@ export default function HomeScreen() {
     setSelectedTag(tag);
     setShowCollections(false);
     setShouldShowResult(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   useEffect(() => {
