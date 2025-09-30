@@ -36,7 +36,6 @@ const CombinedDefaultTheme = merge(LightTheme, customLightTheme);
 const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 
 export default function RootLayout() {
-  const { setAuth,  } = useAuth();
   const colorScheme = useColorScheme();
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [loaded, error] = useFonts({
@@ -83,9 +82,6 @@ export default function RootLayout() {
 
   return null;
 }
-
-
-
 
   return (
     <AuthProvider>

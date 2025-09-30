@@ -1,5 +1,6 @@
 import { Container } from "@/components";
 import { Colors, Dimensions, Strings } from "@/constants/";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import {
   setStoredThemeData,
@@ -14,6 +15,8 @@ import { TimePickerModal } from "react-native-paper-dates";
 
 export default function ConfigsScreen() {
   const colorScheme = useColorScheme();
+
+  const { user } = useAuth();
 
   const [userName, setUserName] = useState("");
   const [isDarkModeOn, setIsDarkModeOn] = useState(true);
@@ -30,12 +33,8 @@ export default function ConfigsScreen() {
   }, [colorScheme, setTheme, setIsDarkModeOn]);
 
   useEffect(() => {
-    async function check() {
-      const { data: userData } = await supabase.auth.getUser();
-      setUserName(userData.user?.email || "");
-    }
-    check();
-  }, []);
+    setUserName(user?.email || "");
+  }, [user?.email]);
 
   const onLogOut = async () => {
     await supabase.auth.signOut();
@@ -66,8 +65,6 @@ export default function ConfigsScreen() {
     },
     [setVisible]
   );
-
-  //TODO: adicionar mais coisas como logout e nome do usuário, talvez
 
   return (
     <Container title={Strings.configsScreen.title} showGoBack>

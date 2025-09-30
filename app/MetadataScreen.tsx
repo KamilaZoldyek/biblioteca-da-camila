@@ -8,6 +8,8 @@ import {
   LongButton,
 } from "@/components";
 import { Colors, Dimensions, Strings } from "@/constants/";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { api } from "@/services/api";
 import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
 import {
@@ -15,6 +17,10 @@ import {
   GoogleBooksListResponse,
   VolumeInfo,
 } from "@/types/GoogleApiTypes";
+import { Book } from "@/types/SupabaseSchemaTypes";
+import { FileObject } from "@supabase/storage-js";
+import { decode } from "base64-arraybuffer";
+import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
@@ -42,6 +48,8 @@ import {
 } from "react-native-paper";
 
 export default function MetadataScreen() {
+  const { user } = useAuth();
+
   const item = useLocalSearchParams<{ isbn: string }>();
   const name = useLocalSearchParams<{ name: string }>();
   const SCREEN_NAME = name.name;
@@ -62,35 +70,40 @@ export default function MetadataScreen() {
   const [showWebview, setShowWebview] = useState(false);
   const [showGoBackModal, setShowGoBackModal] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<FileObject[]>([]);
+  const [base64, setBase64] = useState("");
+  const [filePath, setFilePath] = useState("");
+  const [contentType, setContentType] = useState("");
 
-  const { control, handleSubmit, formState, reset } = useForm({
+  const { control, handleSubmit, formState, reset, setValue } = useForm<Book>({
     mode: "onChange",
     defaultValues: {
-      bookTitle: "",
-      collectionTitle: "",
-      author: "",
-      volume: "",
       isbn: ISBN,
-      publisher: "",
-      synopsis: "",
-      year: "",
-      review: "",
-      readingStatus: "Não lido",
-      kind: "Mangá",
-      location: "Minha casa",
-      collectionStatus: "Incompleta",
-      rating: "N/A",
+      book_title: "",
+      book_author: "",
+      book_volume: "",
+      book_publisher: "",
+      book_year: "",
+      book_synopsis: "",
+      book_reading_status: "Não lido",
+      book_kind: "Mangá",
+      book_location: "Minha casa",
+      book_collection_status: "Incompleta",
+      book_cover_url: "",
+      book_rating: "N/A",
+      book_review: "",
+      collection_id: "",
     },
   });
 
   useEffect(() => {
     if (bookInfo) {
       reset({
-        bookTitle: bookInfo.title,
-        author: bookInfo.authors[0],
-        publisher: bookInfo.publisher,
-        synopsis: bookInfo.description,
-        year: bookInfo.publishedDate,
+        book_title: bookInfo.title,
+        book_author: bookInfo.authors[0],
+        book_publisher: bookInfo.publisher,
+        book_synopsis: bookInfo.description,
+        book_year: bookInfo.publishedDate,
       });
     }
   }, [bookInfo, reset]);
@@ -98,10 +111,16 @@ export default function MetadataScreen() {
   useEffect(() => {
     if (bookInfo?.imageLinks?.thumbnail) {
       setUploadCoverName(bookInfo?.imageLinks?.thumbnail);
+      setValue("book_cover_url", bookInfo?.imageLinks?.thumbnail, {
+        shouldValidate: true,
+      });
     } else if (bookInfo?.imageLinks?.large) {
       setUploadCoverName(bookInfo?.imageLinks?.large);
+      setValue("book_cover_url", bookInfo?.imageLinks?.large, {
+        shouldValidate: true,
+      });
     }
-  }, [bookInfo]);
+  }, [bookInfo, setValue]);
 
   const delay = (milliseconds: number) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -175,7 +194,18 @@ export default function MetadataScreen() {
     // TODO: gerenciar quando vem capa do google(raro, mas acontece)
 
     if (!result.canceled) {
-      setUploadCoverName(result.assets[0].uri);
+      const image = result.assets[0];
+      setUploadCoverName(image.uri); //add nome no state
+
+      const imgBase64 = await FileSystem.readAsStringAsync(image.uri, {
+        encoding: "base64",
+      });
+      setBase64(imgBase64);
+
+      const imgFilePath = `${user!.id}/${new Date().getTime()}.png`;
+      setFilePath(imgFilePath);
+
+      setContentType("image/png");
     }
   };
 
@@ -184,9 +214,42 @@ export default function MetadataScreen() {
     router.navigate("/HomeScreen");
   };
 
-  const handleSave = (data: any) => {
+  const handleImageUploadToSupabase = async () => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("book-covers")
+        .upload(filePath, decode(base64), { contentType });
+
+      if (error) {
+        console.log("F upload de imagem", error.message);
+        return;
+      }
+    } catch (e) {
+      console.log("F upload de imagem", e);
+    }
+  };
+
+  const handleGetImageURLFromSupabase = () => {
+    const { data } = supabase.storage
+      .from("book-covers")
+      .getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const handleSave = async (data: Book) => {
     console.log(data);
-    // TODO adicionar a URL da capa aqui no data
+
+    await handleImageUploadToSupabase();
+    const imgURL = handleGetImageURLFromSupabase();
+
+    setUploadCoverName(imgURL); //add nome no state
+
+    setValue("book_cover_url", imgURL, { shouldValidate: true });
+
+    const { error } = await supabase.from("books").insert(data);
+    if (error) {
+      console.log(error.message);
+    }
   };
 
   const renderTitleBlock = () => {
@@ -194,7 +257,7 @@ export default function MetadataScreen() {
       <Controller
         rules={{ required: Strings.metadataScreen.bookTitleHelper }}
         control={control}
-        name={"bookTitle"}
+        name={"book_title"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -218,7 +281,7 @@ export default function MetadataScreen() {
       <Controller
         rules={{ required: Strings.metadataScreen.collectionTitleHelper }}
         control={control}
-        name={"collectionTitle"}
+        name={"collection_id"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -241,7 +304,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"author"}
+        name={"book_author"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -263,7 +326,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"volume"}
+        name={"book_volume"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -308,7 +371,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"publisher"}
+        name={"book_publisher"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -328,7 +391,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"year"}
+        name={"book_year"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
@@ -347,7 +410,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"synopsis"}
+        name={"book_synopsis"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <Text variant="titleMedium">{Strings.metadataScreen.synopsis}</Text>
@@ -382,7 +445,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"readingStatus"}
+        name={"book_reading_status"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <ChipsWithTitle
@@ -401,7 +464,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"kind"}
+        name={"book_kind"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <ChipsWithTitle
@@ -420,7 +483,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"location"}
+        name={"book_location"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <ChipsWithTitle
@@ -439,7 +502,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"collectionStatus"}
+        name={"book_collection_status"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <ChipsWithTitle
@@ -460,11 +523,11 @@ export default function MetadataScreen() {
         <Text style={styles.smallMarginBottom} variant="titleMedium">
           {Strings.metadataScreen.coverArt}
         </Text>
-        {uploadCoverName && (
+        {/* {uploadCoverName && (
           <Text style={styles.coverName} variant="bodyMedium">
             {uploadCoverName}
           </Text>
-        )}
+        )} */}
         <View style={styles.chipBlock}>
           <Button
             icon={"upload"}
@@ -486,7 +549,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"rating"}
+        name={"book_rating"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <View style={styles.chipBlock}></View>
@@ -507,7 +570,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
-        name={"review"}
+        name={"book_review"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.blocks}>
             <Text variant="titleMedium">{Strings.metadataScreen.review}</Text>
