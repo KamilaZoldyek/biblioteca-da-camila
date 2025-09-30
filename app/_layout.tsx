@@ -36,7 +36,7 @@ const CombinedDefaultTheme = merge(LightTheme, customLightTheme);
 const CombinedDarkTheme = merge(DarkTheme, customDarkTheme);
 
 export default function RootLayout() {
-  const {setAuth} = useAuth();
+  const { setAuth,  } = useAuth();
   const colorScheme = useColorScheme();
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [loaded, error] = useFonts({
@@ -60,23 +60,38 @@ export default function RootLayout() {
     }
   }, [loaded, error]);
 
-    useEffect(() => {
-    supabase.auth.onAuthStateChange((_event, session)=> {
-      if(session) {
-      //  setAuth(session.user);
-        router.replace('/HomeScreen');
-        return;
+  function AuthWatcher() {
+  const { setAuth } = useAuth();
+
+  useEffect(() => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session) {
+          console.log(session.user.email);
+          setAuth(session.user);
+          router.replace("/HomeScreen");
+          return;
+        }
+        setAuth(null);
+        router.replace("/LoginScreen");
       }
-     // setAuth(null)
-      router.replace('/LoginScreen');
-    }) 
-  }, [setAuth]);
+    );
+
+    return () => subscription.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps 
+  }, []);
+
+  return null;
+}
+
+
 
 
   return (
-    <PaperProvider theme={paperTheme}>
-      <ThemeProvider value={paperTheme}>
-        <AuthProvider>
+    <AuthProvider>
+      <AuthWatcher />
+      <PaperProvider theme={paperTheme}>
+        <ThemeProvider value={paperTheme}>
           <View
             style={[
               styles.background,
@@ -129,9 +144,9 @@ export default function RootLayout() {
               />
             </Stack>
           </View>
-        </AuthProvider>
-      </ThemeProvider>
-    </PaperProvider>
+        </ThemeProvider>
+      </PaperProvider>
+    </AuthProvider>
   );
 }
 
