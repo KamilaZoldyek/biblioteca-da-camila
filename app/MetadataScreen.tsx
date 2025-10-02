@@ -17,7 +17,7 @@ import {
   GoogleBooksListResponse,
   VolumeInfo,
 } from "@/types/GoogleApiTypes";
-import { Book } from "@/types/SupabaseSchemaTypes";
+import { Book, Collection } from "@/types/SupabaseSchemaTypes";
 import { FileObject } from "@supabase/storage-js";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
@@ -47,6 +47,25 @@ import {
   TextInput,
 } from "react-native-paper";
 
+
+type BookFormData = {
+  isbn: string;
+  book_title: string;
+  book_author: string;
+  book_volume?: string;
+  book_publisher?: string;
+  book_year?: string;
+  book_synopsis?: string;
+  book_reading_status?: string;
+  book_kind?: string;
+  book_location?: string;
+  book_collection_status?: string;
+  book_cover_url?: string;
+  book_rating?: string;
+  book_review?: string;
+  collection_name: string;
+};
+
 export default function MetadataScreen() {
   const { user } = useAuth();
 
@@ -75,26 +94,27 @@ export default function MetadataScreen() {
   const [filePath, setFilePath] = useState("");
   const [contentType, setContentType] = useState("");
 
-  const { control, handleSubmit, formState, reset, setValue } = useForm<Book>({
-    mode: "onChange",
-    defaultValues: {
-      isbn: ISBN,
-      book_title: "",
-      book_author: "",
-      book_volume: "",
-      book_publisher: "",
-      book_year: "",
-      book_synopsis: "",
-      book_reading_status: "Não lido",
-      book_kind: "Mangá",
-      book_location: "Minha casa",
-      book_collection_status: "Incompleta",
-      book_cover_url: "",
-      book_rating: "N/A",
-      book_review: "",
-      collection_id: "",
-    },
-  });
+  const { control, handleSubmit, formState, reset, setValue } =
+    useForm<BookFormData>({
+      mode: "onChange",
+      defaultValues: {
+        isbn: ISBN,
+        book_title: "",
+        book_author: "",
+        book_volume: "",
+        book_publisher: "",
+        book_year: "",
+        book_synopsis: "",
+        book_reading_status: "Não lido",
+        book_kind: "Mangá",
+        book_location: "Minha casa",
+        book_collection_status: "Incompleta",
+        book_cover_url: "",
+        book_rating: "N/A",
+        book_review: "",
+        collection_name: "",
+      },
+    });
 
   useEffect(() => {
     if (bookInfo) {
@@ -236,20 +256,57 @@ export default function MetadataScreen() {
     return data.publicUrl;
   };
 
-  const handleSave = async (data: Book) => {
-    console.log(data);
+  const getImgURLFromSupabase = async () => {
+    if (!uploadCoverName?.includes("http")) {
+      console.log("entrou no if da imagem");
+      await handleImageUploadToSupabase();
+      const imgURL = handleGetImageURLFromSupabase();
+      console.log("IMG ", imgURL);
+      setUploadCoverName(imgURL); //add nome no state
 
-    await handleImageUploadToSupabase();
-    const imgURL = handleGetImageURLFromSupabase();
-
-    setUploadCoverName(imgURL); //add nome no state
-
-    setValue("book_cover_url", imgURL, { shouldValidate: true });
-
-    const { error } = await supabase.from("books").insert(data);
-    if (error) {
-      console.log(error.message);
+      return imgURL;
     }
+    return "";
+  };
+
+  const handleSave = async (formData: BookFormData) => {
+    setShowLoading(true);
+
+
+    const { data, error } = await supabase.rpc("create_book_with_collection", {
+      p_isbn: formData.isbn,
+      p_book_title: formData.book_title,
+      p_book_author: formData.book_author,
+      p_book_volume: formData.book_volume ?? "",
+      p_book_publisher: formData.book_publisher ?? "",
+      p_book_year: formData.book_year ?? "",
+      p_book_synopsis: formData.book_synopsis ?? "",
+      p_book_reading_status: formData.book_reading_status ?? "",
+      p_book_kind: formData.book_kind ?? "",
+      p_book_location: formData.book_location ?? "",
+      p_book_collection_status: formData.book_collection_status ?? "",
+      p_book_cover_url: formData.book_cover_url
+        ? formData.book_cover_url
+        : await getImgURLFromSupabase(),
+      p_book_rating: formData.book_rating ?? "",
+      p_book_review: formData.book_review ?? "",
+      p_collection_name: formData.collection_name,
+    });
+
+
+    if (error) {
+      setShowLoading(false);
+      //TODO tratar erro de isbn duplicado
+      console.error("Erro ao criar livro e coleção:", error);
+      console.log("Erro ao criar livro e coleção:", error);
+      return;
+    }
+
+    console.log("Livro criado:", data);
+
+    setShowLoading(false);
+
+    router.replace("/HomeScreen");
   };
 
   const renderTitleBlock = () => {
@@ -281,7 +338,7 @@ export default function MetadataScreen() {
       <Controller
         rules={{ required: Strings.metadataScreen.collectionTitleHelper }}
         control={control}
-        name={"collection_id"}
+        name={"collection_name"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>
             <TextInput
