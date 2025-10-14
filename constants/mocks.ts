@@ -34,9 +34,9 @@ export const TAGS = [
   "HQ",
   "Mangá",
   "Lido",
-  "Não Lido",
-  "Coleção incompleta",
-  "Coleção completa",
+  "Não lido",
+  "Incompleta",
+  "Completa",
   "Minha casa",
   "Casa de Mãe",
 ];

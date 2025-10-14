@@ -17,7 +17,6 @@ import {
   GoogleBooksListResponse,
   VolumeInfo,
 } from "@/types/GoogleApiTypes";
-import { Book, Collection } from "@/types/SupabaseSchemaTypes";
 import { FileObject } from "@supabase/storage-js";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
@@ -47,12 +46,17 @@ import {
   TextInput,
 } from "react-native-paper";
 
+const PLACEHOLDER =
+  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
+
+const BASE_IMG_URL =
+  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/";
 
 type BookFormData = {
   isbn: string;
   book_title: string;
   book_author: string;
-  book_volume?: string;
+  book_volume: string;
   book_publisher?: string;
   book_year?: string;
   book_synopsis?: string;
@@ -101,7 +105,7 @@ export default function MetadataScreen() {
         isbn: ISBN,
         book_title: "",
         book_author: "",
-        book_volume: "",
+        book_volume: "1",
         book_publisher: "",
         book_year: "",
         book_synopsis: "",
@@ -163,7 +167,6 @@ export default function MetadataScreen() {
         .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
         .then((response) => {
           if (response.data) {
-            console.log("response.data.items", response.data.items);
             setData(response.data.items);
             setBookInfo(response.data.items[0].volumeInfo);
           } else {
@@ -209,9 +212,8 @@ export default function MetadataScreen() {
       selectionLimit: 1,
     });
 
-    console.log(result);
-    // TODO: pegar o result e subir pra nuvem ou guardar em algum lugar
-    // TODO: gerenciar quando vem capa do google(raro, mas acontece)
+    
+    // TODO: Sobrescrever imagem de upload sobre imagem do google
 
     if (!result.canceled) {
       const image = result.assets[0];
@@ -258,26 +260,28 @@ export default function MetadataScreen() {
 
   const getImgURLFromSupabase = async () => {
     if (!uploadCoverName?.includes("http")) {
-      console.log("entrou no if da imagem");
       await handleImageUploadToSupabase();
       const imgURL = handleGetImageURLFromSupabase();
-      console.log("IMG ", imgURL);
       setUploadCoverName(imgURL); //add nome no state
 
       return imgURL;
     }
-    return "";
+    return PLACEHOLDER;
   };
 
   const handleSave = async (formData: BookFormData) => {
     setShowLoading(true);
+
+    const cover = formData.book_cover_url
+      ? formData.book_cover_url
+      : await getImgURLFromSupabase();
 
 
     const { data, error } = await supabase.rpc("create_book_with_collection", {
       p_isbn: formData.isbn,
       p_book_title: formData.book_title,
       p_book_author: formData.book_author,
-      p_book_volume: formData.book_volume ?? "",
+      p_book_volume: formData.book_volume ?? "1",
       p_book_publisher: formData.book_publisher ?? "",
       p_book_year: formData.book_year ?? "",
       p_book_synopsis: formData.book_synopsis ?? "",
@@ -285,14 +289,11 @@ export default function MetadataScreen() {
       p_book_kind: formData.book_kind ?? "",
       p_book_location: formData.book_location ?? "",
       p_book_collection_status: formData.book_collection_status ?? "",
-      p_book_cover_url: formData.book_cover_url
-        ? formData.book_cover_url
-        : await getImgURLFromSupabase(),
+      p_book_cover_url: cover === BASE_IMG_URL ? PLACEHOLDER : cover,
       p_book_rating: formData.book_rating ?? "",
       p_book_review: formData.book_review ?? "",
       p_collection_name: formData.collection_name,
     });
-
 
     if (error) {
       setShowLoading(false);
@@ -302,7 +303,6 @@ export default function MetadataScreen() {
       return;
     }
 
-    console.log("Livro criado:", data);
 
     setShowLoading(false);
 
@@ -360,6 +360,7 @@ export default function MetadataScreen() {
   const renderAuthorBlock = () => {
     return (
       <Controller
+        rules={{ required: Strings.metadataScreen.collectionTitleHelper }}
         control={control}
         name={"book_author"}
         render={({ field: { onChange, value } }) => (
@@ -383,6 +384,7 @@ export default function MetadataScreen() {
     return (
       <Controller
         control={control}
+        rules={{ required: Strings.metadataScreen.volumeTitleHelper }}
         name={"book_volume"}
         render={({ field: { onChange, value } }) => (
           <View style={styles.textInputs}>

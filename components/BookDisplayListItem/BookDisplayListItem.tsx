@@ -21,6 +21,9 @@ type BookDisplayListItemProps = {
   onPress: (isbn: string) => void;
 };
 
+const PLACEHOLDER =
+  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
+
 export default function BookDisplayListItem({
   customStyle,
   title,
@@ -30,6 +33,7 @@ export default function BookDisplayListItem({
   isbn,
   onPress,
 }: BookDisplayListItemProps) {
+  console.log(image)
   return (
     <Pressable onPress={() => onPress(isbn)}>
       <View style={styles.container}>
@@ -39,7 +43,7 @@ export default function BookDisplayListItem({
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={require("../../assets/images/book-placeholder.svg")}
+          placeholder={PLACEHOLDER}
           source={image}
         />
         <Text
@@ -70,6 +74,6 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 250,
-   //borderRadius: Dimensions.borderRadius.bookCover,
+    //borderRadius: Dimensions.borderRadius.bookCover,
   },
 });

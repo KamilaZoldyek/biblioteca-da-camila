@@ -68,6 +68,8 @@ export const Strings = {
     bookTitle: "Título da obra",
     bookTitleHelper: "Só o título, sem adicionais. Campo obrigatório",
     collectionTitle: "Título da série",
+    volumeTitleHelper:
+      "Insira 1 em casos de livro único. Obrigatório.",
     collectionTitleHelper:
       "Insira o nome da obra em casos de livro único. Obrigatório.",
     author: "Autor",

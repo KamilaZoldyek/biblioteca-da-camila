@@ -5,17 +5,62 @@ import {
   TextblockWithTitle,
 } from "@/components";
 import { Dimensions, Strings } from "@/constants/";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as React from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
+const PLACEHOLDER =
+  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
+
+
+type BookMetadata = {
+  isbn: string;
+  book_title: string;
+  book_author: string;
+  book_volume: string;
+  book_publisher: string;
+  book_year: string;
+  book_synopsis: string;
+  book_reading_status: string;
+  book_kind: string;
+  book_location: string;
+  book_collection_status: string;
+  book_cover_url: string;
+  book_rating: string;
+  book_review: string;
+  collection_id: string | null;
+  user_id?: string | null;
+  created_at?: string;
+};
+
+type BookWithCollection = BookMetadata & {
+  collections: {
+    collection_name: string;
+  } | null; // pode ser null se não houver coleção associada
+};
+
+type BookTagsType = {
+  reading_status: string;
+  kind: string;
+  location: string;
+  collection_status: string;
+};
+
 export default function BookScreen() {
-  const TAGS = ["Livro", "Lido", "Coleção completa", "Minha casa"];
+  const { user } = useAuth();
+
+  const item = useLocalSearchParams<{ isbn: string }>();
+  const ISBN = item.isbn;
+
   const [visible, setVisible] = useState(false);
   const [showWebview, setShowWebview] = useState(false);
+  const [book, setBook] = useState<BookWithCollection | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
 
   const onDismiss = useCallback(() => {
     setVisible(false);
@@ -23,6 +68,60 @@ export default function BookScreen() {
 
   const goToEditScreen = () => {
     router.push({ pathname: "/MetadataScreen", params: { name: "Editar" } });
+  };
+
+  const fetchBookWithCollection = async (
+    isbn: string
+  ): Promise<BookWithCollection> => {
+    const { data, error } = await supabase
+      .from("books")
+      .select(
+        `
+      isbn,
+      book_title,
+      book_author,
+      book_volume,
+      book_publisher,
+      book_year,
+      book_synopsis,
+      book_reading_status,
+      book_kind,
+      book_location,
+      book_collection_status,
+      book_cover_url,
+      book_rating,
+      book_review,
+      collection_id,
+      collections ( collection_name )
+    `
+      )
+      .eq("isbn", isbn)
+      .single<BookWithCollection>();
+
+    if (error) {
+      console.error("Erro ao buscar livro:", error);
+      return null;
+    } else {
+      setBook(data);
+      createTagList(data);
+    }
+
+    return data;
+  };
+
+  useEffect(() => {
+    fetchBookWithCollection(ISBN);
+  }, []);
+
+  const createTagList = (book: BookMetadata) => {
+    const tags = [
+      book.book_reading_status,
+      book.book_kind,
+      book.book_location,
+      "Coleção " + book.book_collection_status,
+    ];
+    setTags(tags);
+    return tags;
   };
 
   const renderMetadata = () => {
@@ -34,33 +133,33 @@ export default function BookScreen() {
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={require("../assets/images/book-placeholder.svg")}
-          source={"https://m.media-amazon.com/images/I/51tAD6LyZ-L.jpg"}
+          placeholder={PLACEHOLDER}
+          source={book?.book_cover_url}
         />
         <View style={styles.metadataText}>
-          <Text variant="headlineSmall">Fahrenheit 451</Text>
+          <Text variant="headlineSmall">{book?.book_title}</Text>
           <Text style={{ paddingBottom: 16 }} variant="titleMedium">
-            Ray Bradbury
+            {book?.book_author}
           </Text>
           {/* Nome da coleção - nṹmero do volume */}
           <Text style={styles.text} variant="bodyLarge">
-            Fahrenheit 451 - 1
+            {book?.collections?.collection_name} -{book?.book_volume}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.year}: 2012
+            {Strings.metadataScreen.year}: {book?.book_year}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.isbn}: 9788525052247
+            {Strings.metadataScreen.isbn}: {ISBN}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.publisher}: Biblioteca Azul
+            {Strings.metadataScreen.publisher}: {book?.book_publisher}
           </Text>
           <Chip
             style={{ alignSelf: "flex-start" }}
             icon={"star"}
             mode="outlined"
           >
-            <Text variant="bodyLarge">5</Text>
+            <Text variant="bodyLarge">{book?.book_rating}</Text>
           </Chip>
         </View>
       </View>
@@ -68,7 +167,7 @@ export default function BookScreen() {
   };
 
   const renderTags = () => {
-    return TAGS.map((item, index) => {
+    return tags?.map((item, index) => {
       return (
         <Chip key={index} style={styles.chip} mode={"flat"}>
           {item}
@@ -92,24 +191,32 @@ export default function BookScreen() {
             {renderMetadata()}
             <View style={styles.tagsSection}>{renderTags()}</View>
 
-            <TextblockWithTitle
+            <TextblockWithTitle //SYNOPSIS
               customStyle={{ paddingBottom: Dimensions.padding.divider }}
-              chipText={Strings.metadataScreen.noSynopsis}
+              chipText={
+                book?.book_synopsis === ""
+                  ? Strings.metadataScreen.noSynopsis
+                  : undefined
+              }
               title={Strings.metadataScreen.synopsis}
+              text={book?.book_synopsis}
             />
 
-            <TextblockWithTitle
+            <TextblockWithTitle //REVIEW
               customStyle={{ paddingBottom: 50 }}
-              text={
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-              }
+              text={book?.book_review}
               title={Strings.metadataScreen.review}
+              chipText={
+                book?.book_review === ""
+                  ? Strings.metadataScreen.noReview
+                  : undefined
+              }
             />
             <ISBNSearchButton onPress={() => setShowWebview(true)} />
           </ScrollView>
         </Container>
       )}
-      {showWebview && <ISBNWebview isbn={"9788525052247"} />}
+      {showWebview && <ISBNWebview isbn={ISBN} />}
       {visible && (
         <Portal>
           <Dialog

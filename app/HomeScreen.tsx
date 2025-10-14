@@ -1,15 +1,12 @@
 import { Container, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Colors, Dimensions, Strings } from "@/constants/";
-import {
-  BookList,
-  getCollectionsFromBookList,
-  mockBookList,
-} from "@/constants/mocks";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { router } from "expo-router";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import {
   AnimatedFAB,
   Chip,
@@ -17,9 +14,26 @@ import {
   Searchbar,
   Text,
 } from "react-native-paper";
-import { FlatGrid, SectionGrid } from "react-native-super-grid";
+import { SectionGrid } from "react-native-super-grid";
+
+type BookListTwo = {
+  isbn: string;
+  book_title: string;
+  book_author: string;
+  book_cover_url: string;
+  book_volume: string;
+  book_tags?: string[];
+};
+
+type CollectionList = {
+  collection_id: string;
+  collection_name: string;
+  books: BookListTwo[];
+};
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
@@ -27,8 +41,79 @@ export default function HomeScreen() {
   const [showCollections, setShowCollections] = useState(false);
   const [forceClear, setForceClear] = useState(false);
   const [isExtended, setIsExtended] = useState(true);
+  const [sections, setSections] = useState<
+    { title: string; data: BookListTwo[] }[]
+  >([]);
+  const [allBooks, setAllBooks] = useState<BookListTwo[]>([]);
+  const [displayedBooks, setDisplayedBooks] = useState<BookListTwo[]>([]);
 
-  const collections = getCollectionsFromBookList(mockBookList);
+  useEffect(() => {
+    const fetchCollectionsWithBooks = async () => {
+      const { data, error } = await supabase
+        .from("collections")
+        .select(
+          `
+          collection_id,
+          collection_name,
+          books (
+            isbn,
+            book_title,
+            book_author,
+            book_cover_url,
+            book_volume
+          )
+        `
+        )
+        .eq("user_id", user?.id);
+
+      if (error) {
+        console.log(error);
+        console.error("Erro ao buscar coleções:", error);
+
+        return;
+      }
+
+      if (data) {
+        const mapped = data.map((coll: CollectionList) => ({
+          title: coll.collection_name,
+          data: coll.books ?? [],
+        }));
+        setSections(mapped);
+      }
+    };
+
+    fetchCollectionsWithBooks();
+  }, [user?.id]);
+
+  useEffect(() => {
+    const fetchAllBooks = async () => {
+      const { data, error } = await supabase.rpc("get_user_books", {
+        uid: user?.id,
+      });
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const formattedBooks = data.map((book) => {
+        const tags = [
+          book.book_reading_status,
+          book.book_kind,
+          book.book_location,
+          book.book_collection_status,
+        ].filter(Boolean);
+
+        return {
+          ...book,
+          book_tags: tags,
+        };
+      });
+
+      setAllBooks(formattedBooks);
+    };
+
+    fetchAllBooks();
+  }, [user?.id]);
 
   const handleConfigScreen = () => {
     router.navigate("/ConfigsScreen");
@@ -48,18 +133,19 @@ export default function HomeScreen() {
   };
 
   const findItem = () => {
-    const result: BookList = [];
-    mockBookList.map((item) => {
+    //fix
+    const result: BookListTwo[] = [];
+    allBooks.map((item) => {
       if (
-        item.title
+        item.book_title
           .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase()) ||
-        item.author
-          .toLocaleLowerCase()
-          .includes(searchQuery.toLocaleLowerCase()) ||
-        item.collection
+        item.book_author
           .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase())
+        // item.collection
+        //   .toLocaleLowerCase()
+        //   .includes(searchQuery.toLocaleLowerCase())
       ) {
         result.push(item);
       }
@@ -68,29 +154,29 @@ export default function HomeScreen() {
   };
 
   const findAllBooksByTag = (tag: string) => {
-    const result: BookList = [];
-    mockBookList.map((item) => {
-      item.tags.map((i) => {
-        if (i === tag) {
-          result.push(item);
-        }
-      });
+    const result: BookListTwo[] = [];
+    allBooks.map((item) => {
+      if (item.book_tags) {
+        item.book_tags.map((i) => {
+          if (i === tag) {
+            result.push(item);
+          }
+        });
+      }
+      return "";
     });
 
     return result;
   };
 
-  const whatDatabaseToUse = () => {
-    if (shouldShowResult) {
-      return findItem();
-    } else if (selectedTag === "") {
-      return mockBookList;
-    }
 
+  const whatDatabaseToUse = React.useCallback(() => {
+    if (shouldShowResult) return findItem();
+    if (selectedTag === "") return allBooks;
     return findAllBooksByTag(selectedTag);
+  }, [shouldShowResult, selectedTag, allBooks, findItem]);
 
-    // return [];
-  };
+
 
   const handleSelectedTag = (tag: string) => {
     setSelectedTag(tag);
@@ -185,49 +271,72 @@ export default function HomeScreen() {
           <SectionGrid
             contentContainerStyle={styles.flatgrid}
             onScroll={handleFAB}
-            itemDimension={130}
-            sections={collections}
+            sections={sections}
             renderItem={({ item }) => (
               <View style={styles.booksSectionList}>
                 <BookDisplayListItem
-                  title={item.title}
-                  author={item.author}
-                  volume={item.volume}
+                  title={item.book_title}
+                  author={item.book_author}
+                  volume={item.book_volume}
                   onPress={(isbnCode) => onPressBook(isbnCode)}
                   isbn={item.isbn}
-                  image={item.image}
+                  image={item.book_cover_url}
                 />
               </View>
             )}
-            renderSectionHeader={({ section: { collectionName } }) => (
+            renderSectionHeader={({ section: { title } }) => (
               <View style={styles.collectionHeader}>
-                <Text variant="titleLarge">{collectionName}</Text>
+                <Text variant="titleLarge">{title}</Text>
                 <Divider bold />
               </View>
             )}
           />
         ) : (
-          <FlatGrid
-            contentContainerStyle={styles.flatgrid}
-            ListEmptyComponent={renderEmptyComponent}
-            itemDimension={130}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleFAB}
+          <FlatList
             data={whatDatabaseToUse()}
             numColumns={2}
+            onScroll={handleFAB}
+            contentContainerStyle={styles.flatgrid}
+            ListEmptyComponent={renderEmptyComponent}
+            showsVerticalScrollIndicator={false}
+            extraData={[shouldShowResult, selectedTag, allBooks.length]}
             renderItem={({ item }) => (
               <View style={styles.books}>
                 <BookDisplayListItem
-                  title={item.title}
-                  author={item.author}
-                  volume={item.volume}
+                  title={item.book_title}
+                  author={item.book_author}
+                  volume={item.book_volume}
                   onPress={(isbnCode) => onPressBook(isbnCode)}
                   isbn={item.isbn}
-                  image={item.image}
+                  image={item.book_cover_url}
                 />
               </View>
             )}
           />
+
+          // <FlatGrid
+          //   contentContainerStyle={styles.flatgrid}
+          //   keyExtractor={(item) => item.isbn}
+          //   ListEmptyComponent={renderEmptyComponent}
+          //   itemDimension={130}
+          //   showsVerticalScrollIndicator={false}
+          //   onScroll={handleFAB}
+          //   data={whatDatabaseToUse()}
+          //   extraData={[shouldShowResult, selectedTag, allBooks.length]}
+          //   numColumns={2}
+          //   renderItem={({ item }) => (
+          //     <View style={styles.books}>
+          //       <BookDisplayListItem
+          //         title={item.book_title}
+          //         author={item.book_author}
+          //         volume={item.book_volume}
+          //         onPress={(isbnCode) => onPressBook(isbnCode)}
+          //         isbn={item.isbn}
+          //         image={item.book_cover_url}
+          //       />
+          //     </View>
+          //   )}
+          // />
         )}
 
         <AnimatedFAB
