@@ -2,9 +2,10 @@ import {
   Container,
   ISBNSearchButton,
   ISBNWebview,
+  LoadingOverlay,
   TextblockWithTitle,
 } from "@/components";
-import { Dimensions, Strings } from "@/constants/";
+import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { Image } from "expo-image";
@@ -16,7 +17,6 @@ import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
 const PLACEHOLDER =
   "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
-
 
 type BookMetadata = {
   isbn: string;
@@ -62,12 +62,27 @@ export default function BookScreen() {
   const [book, setBook] = useState<BookWithCollection | null>(null);
   const [tags, setTags] = useState<string[]>([]);
 
+  const [showLoading, setShowLoading] = useState(false);
+
   const onDismiss = useCallback(() => {
     setVisible(false);
   }, [setVisible]);
 
   const goToEditScreen = () => {
     router.push({ pathname: "/MetadataScreen", params: { name: "Editar" } });
+  };
+
+  const delay = (milliseconds: number) =>
+    new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  useEffect(() => {
+    handleLoading();
+  }, []);
+
+  const handleLoading = async () => {
+    setShowLoading(true);
+    await delay(2000);
+    setShowLoading(false);
   };
 
   const fetchBookWithCollection = async (
@@ -178,7 +193,12 @@ export default function BookScreen() {
 
   return (
     <>
-      {!showWebview && (
+      {showLoading && (
+        <View style={styles.loadingContainer}>
+          <LoadingOverlay />
+        </View>
+      )}
+      {!showWebview && !showLoading && (
         <Container
           title={Strings.bookScreen.title}
           showGoBack
@@ -281,5 +301,14 @@ const styles = StyleSheet.create({
   },
   center: {
     alignSelf: "center",
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    backgroundColor: Colors.dark.background,
   },
 });
