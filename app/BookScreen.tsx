@@ -191,6 +191,22 @@ export default function BookScreen() {
     });
   };
 
+  const deleteBook = async () => {
+ 
+
+    const { error } = await supabase
+      .from("books")
+      .delete()
+      .match({ isbn: ISBN, user_id: user?.id });
+
+    if (error) {
+      console.error("Erro ao apagar livro:", error);
+    } else {
+      console.log("Livro apagado");
+      router.replace("/HomeScreen");
+    }
+  };
+
   return (
     <>
       {showLoading && (
@@ -255,9 +271,7 @@ export default function BookScreen() {
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={onDismiss}>{Strings.bookScreen.back}</Button>
-              <Button onPress={() => console.log("delete")}>
-                {Strings.bookScreen.delete}
-              </Button>
+              <Button onPress={deleteBook}>{Strings.bookScreen.delete}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>

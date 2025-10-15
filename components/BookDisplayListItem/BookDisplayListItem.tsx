@@ -33,7 +33,6 @@ export default function BookDisplayListItem({
   isbn,
   onPress,
 }: BookDisplayListItemProps) {
-  console.log(image)
   return (
     <Pressable onPress={() => onPress(isbn)}>
       <View style={styles.container}>
