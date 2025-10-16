@@ -1,4 +1,5 @@
 import { Dimensions } from "@/constants/";
+import { IMAGE_PLACEHOLDER } from "@/util/util";
 import { Image } from "expo-image";
 import * as React from "react";
 import {
@@ -21,8 +22,6 @@ type BookDisplayListItemProps = {
   onPress: (isbn: string) => void;
 };
 
-const PLACEHOLDER =
-  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
 
 export default function BookDisplayListItem({
   customStyle,
@@ -42,7 +41,7 @@ export default function BookDisplayListItem({
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={PLACEHOLDER}
+          placeholder={IMAGE_PLACEHOLDER}
           source={image}
         />
         <Text

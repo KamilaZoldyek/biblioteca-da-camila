@@ -25,6 +25,10 @@ export default function ChipsWithTitle({
 }: ChipsWithTitleProps) {
   const [selected, setSelected] = useState(defaultValue ? defaultValue : "");
 
+  useEffect(() => {
+  setSelected(defaultValue);
+}, [defaultValue]);
+
   const ripple = {
     color: Colors.dark.primary,
     radius: 100,

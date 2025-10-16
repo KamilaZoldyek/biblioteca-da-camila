@@ -3,6 +3,7 @@ import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayLis
 import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { BookList, CollectionList } from "@/types/SupabaseSchemaTypes";
 import { router } from "expo-router";
 import * as React from "react";
 import { useEffect, useState } from "react";
@@ -16,20 +17,6 @@ import {
 } from "react-native-paper";
 import { SectionGrid } from "react-native-super-grid";
 
-type BookListTwo = {
-  isbn: string;
-  book_title: string;
-  book_author: string;
-  book_cover_url: string;
-  book_volume: string;
-  book_tags?: string[];
-};
-
-type CollectionList = {
-  collection_id: string;
-  collection_name: string;
-  books: BookListTwo[];
-};
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -42,10 +29,10 @@ export default function HomeScreen() {
   const [forceClear, setForceClear] = useState(false);
   const [isExtended, setIsExtended] = useState(true);
   const [sections, setSections] = useState<
-    { title: string; data: BookListTwo[] }[]
+    { title: string; data: BookList[] }[]
   >([]);
-  const [allBooks, setAllBooks] = useState<BookListTwo[]>([]);
-  const [displayedBooks, setDisplayedBooks] = useState<BookListTwo[]>([]);
+  const [allBooks, setAllBooks] = useState<BookList[]>([]);
+  const [displayedBooks, setDisplayedBooks] = useState<BookList[]>([]);
 
   useEffect(() => {
     const fetchCollectionsWithBooks = async () => {
@@ -134,7 +121,7 @@ export default function HomeScreen() {
 
   const findItem = () => {
     //fix
-    const result: BookListTwo[] = [];
+    const result: BookList[] = [];
     allBooks.map((item) => {
       if (
         item.book_title
@@ -154,7 +141,7 @@ export default function HomeScreen() {
   };
 
   const findAllBooksByTag = (tag: string) => {
-    const result: BookListTwo[] = [];
+    const result: BookList[] = [];
     allBooks.map((item) => {
       if (item.book_tags) {
         item.book_tags.map((i) => {
@@ -169,14 +156,11 @@ export default function HomeScreen() {
     return result;
   };
 
-
   const whatDatabaseToUse = React.useCallback(() => {
     if (shouldShowResult) return findItem();
     if (selectedTag === "") return allBooks;
     return findAllBooksByTag(selectedTag);
   }, [shouldShowResult, selectedTag, allBooks, findItem]);
-
-
 
   const handleSelectedTag = (tag: string) => {
     setSelectedTag(tag);

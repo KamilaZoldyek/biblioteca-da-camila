@@ -8,6 +8,8 @@ import {
 import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
+import { delay, IMAGE_PLACEHOLDER } from "@/util/util";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import * as React from "react";
@@ -15,41 +17,6 @@ import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
-const PLACEHOLDER =
-  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
-
-type BookMetadata = {
-  isbn: string;
-  book_title: string;
-  book_author: string;
-  book_volume: string;
-  book_publisher: string;
-  book_year: string;
-  book_synopsis: string;
-  book_reading_status: string;
-  book_kind: string;
-  book_location: string;
-  book_collection_status: string;
-  book_cover_url: string;
-  book_rating: string;
-  book_review: string;
-  collection_id: string | null;
-  user_id?: string | null;
-  created_at?: string;
-};
-
-type BookWithCollection = BookMetadata & {
-  collections: {
-    collection_name: string;
-  } | null; // pode ser null se não houver coleção associada
-};
-
-type BookTagsType = {
-  reading_status: string;
-  kind: string;
-  location: string;
-  collection_status: string;
-};
 
 export default function BookScreen() {
   const { user } = useAuth();
@@ -69,11 +36,11 @@ export default function BookScreen() {
   }, [setVisible]);
 
   const goToEditScreen = () => {
-    router.push({ pathname: "/MetadataScreen", params: { name: "Editar" } });
+    router.push({
+      pathname: "/MetadataScreen",
+      params: { name: "Editar", isbn: ISBN },
+    });
   };
-
-  const delay = (milliseconds: number) =>
-    new Promise((resolve) => setTimeout(resolve, milliseconds));
 
   useEffect(() => {
     handleLoading();
@@ -81,7 +48,7 @@ export default function BookScreen() {
 
   const handleLoading = async () => {
     setShowLoading(true);
-    await delay(2000);
+    await delay(500);
     setShowLoading(false);
   };
 
@@ -148,7 +115,7 @@ export default function BookScreen() {
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={PLACEHOLDER}
+          placeholder={IMAGE_PLACEHOLDER}
           source={book?.book_cover_url}
         />
         <View style={styles.metadataText}>
@@ -192,8 +159,6 @@ export default function BookScreen() {
   };
 
   const deleteBook = async () => {
- 
-
     const { error } = await supabase
       .from("books")
       .delete()
@@ -295,6 +260,7 @@ const styles = StyleSheet.create({
   metadataText: {
     padding: Dimensions.padding.container,
     flexDirection: "column",
+    flexShrink: 1,
   },
   text: {
     paddingBottom: Dimensions.padding.dividerInput,

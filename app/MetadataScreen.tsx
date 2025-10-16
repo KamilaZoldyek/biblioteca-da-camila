@@ -17,6 +17,8 @@ import {
   GoogleBooksListResponse,
   VolumeInfo,
 } from "@/types/GoogleApiTypes";
+import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
+import { BASE_IMG_URL, IMAGE_PLACEHOLDER } from "@/util/util";
 import { FileObject } from "@supabase/storage-js";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
@@ -46,12 +48,6 @@ import {
   TextInput,
 } from "react-native-paper";
 
-const PLACEHOLDER =
-  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/placeholders/new_placeholder.png";
-
-const BASE_IMG_URL =
-  "https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/";
-
 type BookFormData = {
   isbn: string;
   book_title: string;
@@ -77,12 +73,16 @@ export default function MetadataScreen() {
   const name = useLocalSearchParams<{ name: string }>();
   const SCREEN_NAME = name.name;
   const ISBN = item.isbn;
+  const isEditing = SCREEN_NAME === "Editar";
+
   const colorScheme = useColorScheme();
   const RATING_LIST = ["N/A", "1", "2", "3", "4", "5"];
   //TODO isso provavelmente vai virar um type, assim como os outros
 
   const [data, setData] = useState<GoogleBookItem[]>();
   const [bookInfo, setBookInfo] = useState<VolumeInfo>();
+  const [hasGoogleImage, setHasGoogleImage] = useState(false);
+  const [collectionId, setCollectionId] = useState("");
 
   const [hasReview, setHasReview] = useState(true);
   const [hasSynopsis, setHasSynopsis] = useState(true);
@@ -134,11 +134,13 @@ export default function MetadataScreen() {
 
   useEffect(() => {
     if (bookInfo?.imageLinks?.thumbnail) {
+      setHasGoogleImage(true);
       setUploadCoverName(bookInfo?.imageLinks?.thumbnail);
       setValue("book_cover_url", bookInfo?.imageLinks?.thumbnail, {
         shouldValidate: true,
       });
     } else if (bookInfo?.imageLinks?.large) {
+      setHasGoogleImage(true);
       setUploadCoverName(bookInfo?.imageLinks?.large);
       setValue("book_cover_url", bookInfo?.imageLinks?.large, {
         shouldValidate: true,
@@ -163,23 +165,25 @@ export default function MetadataScreen() {
 
   useEffect(() => {
     const loadFromAPI = async () => {
-      await api
-        .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
-        .then((response) => {
-          if (response.data) {
-            setData(response.data.items);
-            setBookInfo(response.data.items[0].volumeInfo);
-          } else {
-            console.log("F"); //press F to pay respect
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      if (!isEditing) {
+        await api
+          .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
+          .then((response) => {
+            if (response.data) {
+              setData(response.data.items);
+              setBookInfo(response.data.items[0].volumeInfo);
+            } else {
+              console.log("F"); //press F to pay respect
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     };
 
     loadFromAPI();
-  }, [ISBN]);
+  }, [ISBN, isEditing]);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -212,8 +216,8 @@ export default function MetadataScreen() {
       selectionLimit: 1,
     });
 
-    
     // TODO: Sobrescrever imagem de upload sobre imagem do google
+    //TODO: abrir camera
 
     if (!result.canceled) {
       const image = result.assets[0];
@@ -259,50 +263,211 @@ export default function MetadataScreen() {
   };
 
   const getImgURLFromSupabase = async () => {
-    if (!uploadCoverName?.includes("http")) {
+    console.log("googleimg", hasGoogleImage);
+    if (filePath) {
       await handleImageUploadToSupabase();
       const imgURL = handleGetImageURLFromSupabase();
       setUploadCoverName(imgURL); //add nome no state
+      console.log("img", uploadCoverName);
 
       return imgURL;
     }
-    return PLACEHOLDER;
+    return IMAGE_PLACEHOLDER;
   };
+
+  const fetchBookWithCollection = async (isbn: string) => {
+    const { data, error } = await supabase
+      .from("books")
+      .select(
+        `
+          isbn,
+          book_title,
+          book_author,
+          book_volume,
+          book_publisher,
+          book_year,
+          book_synopsis,
+          book_reading_status,
+          book_kind,
+          book_location,
+          book_collection_status,
+          book_cover_url,
+          book_rating,
+          book_review,
+          collection_id,
+          collections ( collection_name )
+        `
+      )
+      .eq("isbn", isbn)
+      .single<BookWithCollection>();
+
+    if (error) {
+      console.error("Erro ao buscar livro:", error);
+      return;
+    } else {
+      reset({
+        collection_name: data.collections?.collection_name,
+        book_title: data.book_title,
+        book_author: data.book_author,
+        book_volume: data.book_volume,
+        book_publisher: data.book_publisher,
+        book_synopsis: data.book_synopsis,
+        book_year: data.book_year,
+        book_reading_status: data.book_reading_status,
+        book_kind: data.book_kind,
+        book_location: data.book_location,
+        book_collection_status: data.book_collection_status,
+        book_cover_url: data.book_cover_url,
+        book_rating: data.book_rating,
+        book_review: data.book_review,
+        isbn: data.isbn,
+      });
+      setUploadCoverName(data.book_cover_url);
+      setCollectionId(data.collection_id || "");
+      setHasSynopsis(data.book_synopsis !== "");
+      setHasReview(data.book_review !== "");
+
+      return;
+    }
+  };
+
+  useEffect(() => {
+    //efeito para EDIÇÃO
+    if (!isEditing) {
+      return;
+    }
+
+    fetchBookWithCollection(ISBN);
+  }, [ISBN, isEditing]);
+
+  const selectCoverSource = async () => {
+    if (filePath) {
+      const supabasePath = await getImgURLFromSupabase();
+      return supabasePath;
+    }
+
+    if (uploadCoverName) return uploadCoverName;
+
+    return IMAGE_PLACEHOLDER;
+  };
+
+  ///////////////
 
   const handleSave = async (formData: BookFormData) => {
     setShowLoading(true);
 
-    const cover = formData.book_cover_url
-      ? formData.book_cover_url
-      : await getImgURLFromSupabase();
+    const cover = await selectCoverSource();
 
+    if (!isEditing) {
+      const { error } = await supabase.rpc("create_book_with_collection", {
+        p_isbn: formData.isbn,
+        p_book_title: formData.book_title,
+        p_book_author: formData.book_author,
+        p_book_volume: formData.book_volume ?? "1",
+        p_book_publisher: formData.book_publisher ?? "",
+        p_book_year: formData.book_year ?? "",
+        p_book_synopsis: formData.book_synopsis ?? "",
+        p_book_reading_status: formData.book_reading_status ?? "",
+        p_book_kind: formData.book_kind ?? "",
+        p_book_location: formData.book_location ?? "",
+        p_book_collection_status: formData.book_collection_status ?? "",
+        p_book_cover_url: cover === BASE_IMG_URL ? IMAGE_PLACEHOLDER : cover,
+        p_book_rating: formData.book_rating ?? "",
+        p_book_review: formData.book_review ?? "",
+        p_collection_name: formData.collection_name,
+      });
 
-    const { data, error } = await supabase.rpc("create_book_with_collection", {
-      p_isbn: formData.isbn,
-      p_book_title: formData.book_title,
-      p_book_author: formData.book_author,
-      p_book_volume: formData.book_volume ?? "1",
-      p_book_publisher: formData.book_publisher ?? "",
-      p_book_year: formData.book_year ?? "",
-      p_book_synopsis: formData.book_synopsis ?? "",
-      p_book_reading_status: formData.book_reading_status ?? "",
-      p_book_kind: formData.book_kind ?? "",
-      p_book_location: formData.book_location ?? "",
-      p_book_collection_status: formData.book_collection_status ?? "",
-      p_book_cover_url: cover === BASE_IMG_URL ? PLACEHOLDER : cover,
-      p_book_rating: formData.book_rating ?? "",
-      p_book_review: formData.book_review ?? "",
-      p_collection_name: formData.collection_name,
-    });
+      if (error) {
+        setShowLoading(false);
+        //TODO tratar erro de isbn duplicado
+        console.error("Erro ao criar livro e coleção:", error);
+        console.log("Erro ao criar livro e coleção:", error);
+        return;
+      }
+    } else {
+      const currentCollectionId = collectionId;
+      const newCollectionName = formData.collection_name;
 
-    if (error) {
-      setShowLoading(false);
-      //TODO tratar erro de isbn duplicado
-      console.error("Erro ao criar livro e coleção:", error);
-      console.log("Erro ao criar livro e coleção:", error);
-      return;
+      let newCollectionId = currentCollectionId;
+
+      if (newCollectionName) {
+        const { data: existingCollection, error: findError } = await supabase
+          .from("collections")
+          .select("collection_id")
+          .eq("collection_name", newCollectionName)
+          .eq("user_id", user?.id)
+          .maybeSingle();
+
+        if (findError) {
+          setShowLoading(false);
+          console.log("F");
+          return;
+        }
+
+        if (existingCollection) {
+          newCollectionId = existingCollection.collection_id;
+        } else {
+          const { data: newCollection, error: insertError } = await supabase
+            .from("collections")
+            .insert({
+              collection_name: newCollectionName,
+              user_id: user?.id,
+            })
+            .select("collection_id")
+            .single();
+
+          if (insertError) {
+            setShowLoading(false);
+            console.error("Erro ao atualizar livro e coleção:", insertError);
+            console.log("Erro ao atualizar livro e coleção:", insertError);
+            return;
+          }
+          newCollectionId = newCollection.collection_id;
+        }
+
+        const { error: updateError } = await supabase
+          .from("books")
+          .update({
+            book_title: formData.book_title,
+            book_author: formData.book_author,
+            book_publisher: formData.book_publisher,
+            book_year: formData.book_year,
+            book_synopsis: formData.book_synopsis,
+            book_reading_status: formData.book_reading_status,
+            book_kind: formData.book_kind,
+            book_location: formData.book_location,
+            book_collection_status: formData.book_collection_status,
+            book_cover_url: cover,
+            book_rating: formData.book_rating,
+            book_review: formData.book_review,
+            collection_id: newCollectionId,
+          })
+          .eq("isbn", ISBN)
+          .eq("user_id", user?.id);
+
+        if (updateError) {
+          setShowLoading(false);
+          console.error("Erro ao atualizar livro e coleção:", updateError);
+          console.log("Erro ao atualizar livro e coleção:", updateError);
+          return;
+        }
+
+        //apaga collection vazia
+        if (currentCollectionId && currentCollectionId !== newCollectionId) {
+          const { count } = await supabase
+            .from("books")
+            .select("*", { count: "exact", head: true })
+            .eq("collection_id", currentCollectionId);
+
+          if (count === 0) {
+            await supabase
+              .from("collections")
+              .delete()
+              .eq("collection_id", currentCollectionId);
+          }
+        }
+      }
     }
-
 
     setShowLoading(false);
 

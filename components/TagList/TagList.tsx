@@ -1,5 +1,5 @@
 import { Colors } from "@/constants";
-import { TAGS } from "@/constants/mocks";
+import { TAGS } from "@/util/util";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { FlatList, StyleProp, StyleSheet, ViewStyle } from "react-native";
