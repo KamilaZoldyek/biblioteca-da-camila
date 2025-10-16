@@ -207,17 +207,23 @@ export default function MetadataScreen() {
     }, [])
   );
 
-  const handleImageUpload = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      // aspect: [3, 5],
-      quality: 1,
-      selectionLimit: 1,
-    });
-
-    // TODO: Sobrescrever imagem de upload sobre imagem do google
-    //TODO: abrir camera
+  const handleImageUpload = async (type: string) => {
+    let result;
+    if (type === "upload") {
+      result = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [3, 5],
+        quality: 1,
+      });
+    } else {
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        // aspect: [3, 5],
+        quality: 1,
+        selectionLimit: 1,
+      });
+    }
 
     if (!result.canceled) {
       const image = result.assets[0];
@@ -753,14 +759,25 @@ export default function MetadataScreen() {
           </Text>
         )} */}
         <View style={styles.chipBlock}>
-          <Button
-            icon={"upload"}
-            mode="contained"
-            style={styles.chip}
-            onPress={handleImageUpload}
-          >
-            {Strings.metadataScreen.uploadCoverCTA}
-          </Button>
+          <View style={{flexDirection: "column"}}>
+            <Button
+              icon={"upload"}
+              mode="contained"
+              style={styles.chip}
+              onPress={() => handleImageUpload("upload")}
+            >
+              {Strings.metadataScreen.uploadCoverCTA}
+            </Button>
+            <Button
+              icon={"camera"}
+              mode="contained"
+              style={styles.chip}
+              onPress={() => handleImageUpload("camera")}
+            >
+              {Strings.metadataScreen.cameraCoverCTA}
+            </Button>
+          </View>
+
           {uploadCoverName && (
             <Image source={{ uri: uploadCoverName }} style={styles.image} />
           )}
@@ -946,6 +963,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginVertical: Dimensions.padding.halfContainer,
     marginRight: Dimensions.padding.container,
+    width:150,
   },
   blocks: {
     marginVertical: Dimensions.padding.container,

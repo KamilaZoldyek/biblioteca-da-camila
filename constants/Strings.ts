@@ -99,6 +99,7 @@ export const Strings = {
     collectionIncomplete: "Coleção incompleta",
     coverArt: "Capa",
     uploadCoverCTA: "Upload da capa",
+    cameraCoverCTA: "Foto da capa",
     opinionTitle: "Opinião",
     rating: "Avaliação",
     review: "Resenha",
