@@ -9,6 +9,15 @@ export const Strings = {
     searchResultText: "Resultados de busca para: ",
     collections: "Coleções",
     emptyList: "Clique no + para adicionar um livro",
+    manualISBNTitle: 'Adicione um livro manualmente',
+    manualISBNDescription: '- O código ISBN possui 10 ou 13 números.\n\n- Se não houver código de barras, está localizado na ficha catalográfica do livro, geralmente fica nas primeiras páginas.\n\n- Alguns livros antigos não possuem ISBN.\n\n- Não inclua pontos ou traços.',
+    manualISBNPlaceholder: 'Insira o ISBN',
+    manualISBNSearch: 'Buscar livro',
+    manualISBNCancel: 'Cancelar',
+    addISBNScan: "Escanear um ISBN",
+    addISBNManually: "Digitar um ISBN",
+
+
   },
   configsScreen: {
     title: "Configurações",

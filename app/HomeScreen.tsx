@@ -9,14 +9,17 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import {
-  AnimatedFAB,
+  Button,
   Chip,
+  Dialog,
   Divider,
+  FAB,
+  Portal,
   Searchbar,
   Text,
+  TextInput,
 } from "react-native-paper";
 import { SectionGrid } from "react-native-super-grid";
-
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -24,7 +27,6 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [forceClear, setForceClear] = useState(false);
   const [isExtended, setIsExtended] = useState(true);
@@ -32,7 +34,12 @@ export default function HomeScreen() {
     { title: string; data: BookList[] }[]
   >([]);
   const [allBooks, setAllBooks] = useState<BookList[]>([]);
-  const [displayedBooks, setDisplayedBooks] = useState<BookList[]>([]);
+  const [state, setState] = React.useState({ open: false });
+  const onStateChange = ({ open }) => setState({ open });
+  const { open } = state;
+  const [manualISBNVisible, setManualISBNVisible] = useState(false);
+  const [insertedISBNValue, setInsertedISBNValue] = useState("");
+  const [isTextInputFocused, setIsTextInputFocused] = useState(false);
 
   useEffect(() => {
     const fetchCollectionsWithBooks = async () => {
@@ -206,6 +213,26 @@ export default function HomeScreen() {
     router.push({ pathname: "/BookScreen", params: { isbn: isbnCode } });
   };
 
+  const onManualSearch = () => {
+    setManualISBNVisible(false);
+    if (insertedISBNValue.length === 10 || insertedISBNValue.length === 13) {
+      router.push({
+        pathname: "/MetadataScreen",
+        params: { isbn: insertedISBNValue },
+      });
+    }
+  };
+
+  const manualISBNError = !(
+    insertedISBNValue.length === 10 || insertedISBNValue.length === 13
+  );
+
+  const clearManualISBN = () => {
+    setIsTextInputFocused(false);
+    setInsertedISBNValue("");
+    setManualISBNVisible(false);
+  };
+
   return (
     <>
       {/* DEIXE o title vazio para alinhar os ícones a direita! */}
@@ -323,14 +350,35 @@ export default function HomeScreen() {
           // />
         )}
 
-        <AnimatedFAB
+        {/* <AnimatedFAB
           icon={"plus"}
           label={Strings.homeScreen.fabAdd}
           extended={isExtended}
           onPress={onFABPress}
           visible={true}
           style={[styles.fabStyle]}
-        />
+        /> */}
+
+        <Portal>
+          <FAB.Group
+            open={open}
+            visible
+            icon={open ? "book-plus" : "plus"}
+            actions={[
+              {
+                icon: "pencil",
+                label: Strings.homeScreen.addISBNManually,
+                onPress: () => setManualISBNVisible(true),
+              },
+              {
+                icon: "barcode",
+                label: Strings.homeScreen.addISBNScan,
+                onPress: onFABPress,
+              },
+            ]}
+            onStateChange={onStateChange}
+          />
+        </Portal>
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll
@@ -366,6 +414,44 @@ export default function HomeScreen() {
           />
         )} */}
       </Container>
+      <Portal>
+        <Dialog
+          style={styles.manualISBNTextInput}
+          visible={manualISBNVisible}
+          onDismiss={clearManualISBN}
+        >
+          <Dialog.Icon icon="book-plus" />
+          <Dialog.Title style={{ textAlign: "center" }}>
+            {Strings.homeScreen.manualISBNTitle}
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={{ paddingVertical: 16 }} variant="bodyMedium">
+              {Strings.homeScreen.manualISBNDescription}
+            </Text>
+            <TextInput
+              onFocus={() => setIsTextInputFocused(true)}
+              onBlur={clearManualISBN}
+              mode="outlined"
+              maxLength={13}
+              error={manualISBNError && isTextInputFocused}
+              keyboardType="numeric"
+              label={Strings.homeScreen.manualISBNPlaceholder}
+              value={insertedISBNValue}
+              onChangeText={(insertedISBNValue) =>
+                setInsertedISBNValue(insertedISBNValue)
+              }
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={clearManualISBN}>
+              {Strings.homeScreen.manualISBNCancel}
+            </Button>
+            <Button onPress={onManualSearch}>
+              {Strings.homeScreen.manualISBNSearch}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 }
@@ -407,5 +493,8 @@ const styles = StyleSheet.create({
   },
   flatgrid: {
     paddingBottom: 150,
+  },
+  manualISBNTextInput: {
+    backgroundColor: Colors.dark.background,
   },
 });
