@@ -1,5 +1,5 @@
 import { Dimensions } from "@/constants/";
-import { IMAGE_PLACEHOLDER } from "@/util/util";
+import { IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
 import * as React from "react";
 import {
@@ -21,7 +21,6 @@ type BookDisplayListItemProps = {
   isbn: string;
   onPress: (isbn: string) => void;
 };
-
 
 export default function BookDisplayListItem({
   customStyle,

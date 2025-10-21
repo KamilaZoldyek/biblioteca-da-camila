@@ -4,10 +4,14 @@ import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { BookList, CollectionList } from "@/types/SupabaseSchemaTypes";
+import { registerForPushNotificationsAsync } from "@/utils/notifications";
 import { router } from "expo-router";
+import { getFirestore } from "firebase/firestore";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
+import { firebaseApp } from "./firebaseConfig";
+
 import {
   Button,
   Chip,
@@ -40,6 +44,20 @@ export default function HomeScreen() {
   const [manualISBNVisible, setManualISBNVisible] = useState(false);
   const [insertedISBNValue, setInsertedISBNValue] = useState("");
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
+
+  const db = getFirestore(firebaseApp);
+
+  useEffect(() => {
+    async function setupPush() {
+      console.log("push");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      console.log(user?.email);
+      if (user) await registerForPushNotificationsAsync(user.id);
+    }
+    setupPush();
+  }, []);
 
   useEffect(() => {
     const fetchCollectionsWithBooks = async () => {

@@ -55,6 +55,7 @@ export default function LoginScreen() {
       console.log("login error", error);
       return;
     }
+
     setShowLoading(false);
     router.replace("/HomeScreen");
   };

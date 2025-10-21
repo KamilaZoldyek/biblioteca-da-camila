@@ -9,14 +9,13 @@ import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
-import { delay, IMAGE_PLACEHOLDER } from "@/util/util";
+import { delay, IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
-
 
 export default function BookScreen() {
   const { user } = useAuth();

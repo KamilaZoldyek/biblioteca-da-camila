@@ -6,14 +6,24 @@ import {
   setStoredThemeData,
   storedThemeDataOrColorScheme,
 } from "@/Storage/ThemeData";
+import { convertLocalToUTC } from "@/utils/timeConversion";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { Appearance, StyleSheet, useColorScheme, View } from "react-native";
+import {
+  Appearance,
+  StyleSheet,
+  ToastAndroid,
+  useColorScheme,
+  View,
+} from "react-native";
 import { ActivityIndicator, Button, Switch, Text } from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 
 export default function ConfigsScreen() {
+  const STORAGE_KEY_TIME = "@daily_reminder_time";
   const colorScheme = useColorScheme();
 
   const { user } = useAuth();
@@ -24,6 +34,7 @@ export default function ConfigsScreen() {
   const [hour, setHour] = useState(12);
   const [minutes, setMinutes] = useState(30);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+  const [reminderOn, setReminderOn] = useState(false);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -35,6 +46,22 @@ export default function ConfigsScreen() {
   useEffect(() => {
     setUserName(user?.email || "");
   }, [user?.email]);
+
+  useEffect(() => {
+    getReminder();
+  }, []);
+
+  const getReminder = async () => {
+    const hasReminder = await AsyncStorage.getItem(STORAGE_KEY_TIME);
+    if (hasReminder) {
+      const [h, m] = hasReminder.split(":").map(Number);
+      setReminderOn(true);
+      setHour(h);
+      setMinutes(m);
+      return;
+    }
+    setReminderOn(false);
+  };
 
   const onLogOut = async () => {
     await supabase.auth.signOut();
@@ -62,14 +89,80 @@ export default function ConfigsScreen() {
       setVisible(false);
       setHour(hours);
       setMinutes(minutes);
+      const time = hours.toString() + ":" + minutes.toString();
+      setUserReminder(user?.id!, time);
     },
-    [setVisible]
+    [user?.id]
   );
+
+  const setUserReminder = async (userId: string, selectedTime: string) => {
+
+    const utcTime = convertLocalToUTC(selectedTime);
+
+    const { data, error: reminderError } = await supabase
+      .from("users")
+      .update({ reminder_time: utcTime })
+      .eq("user_id", userId)
+      .select();
+
+      if(data) {
+        console.log(data);
+      }
+
+    if (reminderError) {
+      ToastAndroid.show("Problemas ao cadastrar o horário", ToastAndroid.LONG);
+      console.log(reminderError);
+    }
+
+    await AsyncStorage.setItem(STORAGE_KEY_TIME, selectedTime);
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Lembrete salvo",
+        body: `Você será lembrado às ${selectedTime}`,
+      },
+      trigger: null,
+    });
+
+    ToastAndroid.show(
+      `Você será lembrado às ${selectedTime}`,
+      ToastAndroid.LONG
+    );
+
+    console.log("Reminder feito");
+  };
+
+  const cancelUserReminder = async (userId: string) => {
+    const { error: cancelError } = await supabase
+      .from("users")
+      .update({ reminder_time: null })
+      .eq("user_id", userId);
+
+    if (cancelError) {
+      ToastAndroid.show("Problemas ao cancelar o lembrete", ToastAndroid.LONG);
+      console.log(cancelError);
+    }
+    await AsyncStorage.removeItem(STORAGE_KEY_TIME);
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  };
+
+  const onToggleReminder = () => {
+    if (!reminderOn) {
+      setReminderOn(true);
+      setVisible(true);
+    } else {
+      setReminderOn(false);
+      cancelUserReminder(user?.id!);
+    }
+  };
 
   return (
     <Container title={Strings.configsScreen.title} showGoBack>
-      <View style={styles.alarmSection}>
+      <View style={styles.darkModeSection}>
         <Text variant="titleMedium">{Strings.configsScreen.alarmTitle}</Text>
+        <Switch value={reminderOn} onValueChange={onToggleReminder}></Switch>
+      </View>
+      <View style={styles.alarmSection}>
         <Text variant="bodyMedium">
           {Strings.configsScreen.alarmDescription}
         </Text>
@@ -80,10 +173,18 @@ export default function ConfigsScreen() {
             uppercase={false}
             mode="contained"
             icon={"clock-outline"}
+            disabled={!reminderOn}
           >
             {Strings.configsScreen.pickTime}
           </Button>
-          <Text variant="displaySmall">
+          <Text
+            style={{
+              color: !reminderOn
+                ? Colors.dark.onSurfaceDisabled
+                : Colors.dark.onSurface,
+            }}
+            variant="displaySmall"
+          >
             {hour.toString()}:{minutes.toString()}
           </Text>
         </View>
@@ -93,7 +194,7 @@ export default function ConfigsScreen() {
         <Switch value={isDarkModeOn} onValueChange={onToggleDarkMode}></Switch>
       </View>
 
-      <View style={styles.alarmSection}>
+      <View style={styles.accountSection}>
         <Text variant="titleMedium">{Strings.configsScreen.account}</Text>
 
         {userName === "" ? (
@@ -141,12 +242,17 @@ const styles = StyleSheet.create({
   alarmSection: {
     flexDirection: "column",
     alignItems: "flex-start",
-    paddingVertical: Dimensions.padding.divider,
+  },
+  accountSection: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    paddingTop: Dimensions.padding.divider,
   },
   darkModeSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingTop: Dimensions.padding.divider,
   },
   timeSection: {
     paddingTop: Dimensions.padding.container,

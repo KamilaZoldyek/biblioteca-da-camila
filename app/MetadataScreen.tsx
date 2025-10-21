@@ -18,7 +18,7 @@ import {
   VolumeInfo,
 } from "@/types/GoogleApiTypes";
 import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
-import { BASE_IMG_URL, IMAGE_PLACEHOLDER } from "@/util/util";
+import { BASE_IMG_URL, IMAGE_PLACEHOLDER } from "@/utils/util";
 import { FileObject } from "@supabase/storage-js";
 import { decode } from "base64-arraybuffer";
 import * as FileSystem from "expo-file-system";
@@ -759,7 +759,7 @@ export default function MetadataScreen() {
           </Text>
         )} */}
         <View style={styles.chipBlock}>
-          <View style={{flexDirection: "column"}}>
+          <View style={{ flexDirection: "column" }}>
             <Button
               icon={"upload"}
               mode="contained"
@@ -963,7 +963,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginVertical: Dimensions.padding.halfContainer,
     marginRight: Dimensions.padding.container,
-    width:150,
+    width: 150,
   },
   blocks: {
     marginVertical: Dimensions.padding.container,

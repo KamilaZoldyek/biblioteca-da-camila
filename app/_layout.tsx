@@ -3,6 +3,7 @@ import { Colors } from "@/constants/Colors";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { storedThemeDataOrColorScheme } from "@/Storage/ThemeData";
+import { registerPushToken } from "@/utils/registerPushToken";
 import { Montserrat_500Medium } from "@expo-google-fonts/montserrat";
 import {
   DarkTheme as NavigationDarkTheme,
@@ -14,13 +15,17 @@ import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, useColorScheme, View } from "react-native";
+import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import {
   adaptNavigationTheme,
   MD3DarkTheme,
   PaperProvider,
 } from "react-native-paper";
 import { pt, registerTranslation } from "react-native-paper-dates";
+import * as Notifications from "expo-notifications";
+import './firebaseConfig'
+
+
 
 SplashScreen.preventAutoHideAsync();
 
@@ -59,29 +64,39 @@ export default function RootLayout() {
     }
   }, [loaded, error]);
 
-  function AuthWatcher() {
-  const { setAuth } = useAuth();
-
   useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session) {
-          console.log(session.user.email);
-          setAuth(session.user);
-          router.replace("/HomeScreen");
-          return;
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+      });
+    }
+  }, [loaded, error]);
+
+  function AuthWatcher() {
+    const { setAuth } = useAuth();
+
+    useEffect(() => {
+      const { data: subscription } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          if (session) {
+            console.log(session.user.email);
+            setAuth(session.user);
+            registerPushToken(session.user.id);
+            router.replace("/HomeScreen");
+            return;
+          }
+          setAuth(null);
+          router.replace("/LoginScreen");
         }
-        setAuth(null);
-        router.replace("/LoginScreen");
-      }
-    );
+      );
 
-    return () => subscription.subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, []);
+      return () => subscription.subscription.unsubscribe();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  return null;
-}
+    return null;
+  }
 
   return (
     <AuthProvider>
