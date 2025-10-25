@@ -18,8 +18,6 @@ const api = axios.create({
 
 api.interceptors.response.use(
   (config) => {
-   // console.log("got this data:", config.data);
-     //console.log("got this request:", config.request);
     return config;
   },
   (error) => {

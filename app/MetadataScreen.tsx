@@ -269,12 +269,10 @@ export default function MetadataScreen() {
   };
 
   const getImgURLFromSupabase = async () => {
-    console.log("googleimg", hasGoogleImage);
     if (filePath) {
       await handleImageUploadToSupabase();
       const imgURL = handleGetImageURLFromSupabase();
       setUploadCoverName(imgURL); //add nome no state
-      console.log("img", uploadCoverName);
 
       return imgURL;
     }

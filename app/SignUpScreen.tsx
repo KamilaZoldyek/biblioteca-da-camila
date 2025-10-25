@@ -14,7 +14,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { ActivityIndicator, TextInput } from "react-native-paper";
+import { ActivityIndicator, Text, TextInput } from "react-native-paper";
 
 type FormData = {
   login: string;
@@ -78,6 +78,12 @@ export default function SignUpScreen() {
           <View style={styles.container}>
             <LogoTitle />
           </View>
+          <View>
+            <Text variant="titleMedium">
+              {Strings.signUpScreen.disclaimersTitle}
+            </Text>
+            <Text variant="bodyMedium" style={{paddingTop: 8}}>{Strings.signUpScreen.disclaimers}</Text>
+          </View>
           <View style={styles.buttons}>
             <Controller
               rules={{ required: Strings.loginScreen.title }}
@@ -140,7 +146,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    paddingVertical: Dimensions.padding.divider,
+    paddingVertical: 32,
   },
   buttons: {
     justifyContent: "space-between",

@@ -49,11 +49,9 @@ export default function HomeScreen() {
 
   useEffect(() => {
     async function setupPush() {
-      console.log("push");
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      console.log(user?.email);
       if (user) await registerForPushNotificationsAsync(user.id);
     }
     setupPush();
@@ -145,7 +143,7 @@ export default function HomeScreen() {
   };
 
   const findItem = () => {
-    //fix
+    //TODO: fix
     const result: BookList[] = [];
     allBooks.map((item) => {
       if (

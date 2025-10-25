@@ -19,7 +19,14 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { ActivityIndicator, Button, Switch, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Dialog,
+  Portal,
+  Switch,
+  Text,
+} from "react-native-paper";
 import { TimePickerModal } from "react-native-paper-dates";
 
 export default function ConfigsScreen() {
@@ -35,6 +42,7 @@ export default function ConfigsScreen() {
   const [minutes, setMinutes] = useState(30);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [reminderOn, setReminderOn] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
@@ -96,7 +104,6 @@ export default function ConfigsScreen() {
   );
 
   const setUserReminder = async (userId: string, selectedTime: string) => {
-
     const utcTime = convertLocalToUTC(selectedTime);
 
     const { data, error: reminderError } = await supabase
@@ -105,9 +112,9 @@ export default function ConfigsScreen() {
       .eq("user_id", userId)
       .select();
 
-      if(data) {
-        console.log(data);
-      }
+    if (data) {
+      console.log(data);
+    }
 
     if (reminderError) {
       ToastAndroid.show("Problemas ao cadastrar o horário", ToastAndroid.LONG);
@@ -157,84 +164,106 @@ export default function ConfigsScreen() {
   };
 
   return (
-    <Container title={Strings.configsScreen.title} showGoBack>
-      <View style={styles.darkModeSection}>
-        <Text variant="titleMedium">{Strings.configsScreen.alarmTitle}</Text>
-        <Switch value={reminderOn} onValueChange={onToggleReminder}></Switch>
-      </View>
-      <View style={styles.alarmSection}>
-        <Text variant="bodyMedium">
-          {Strings.configsScreen.alarmDescription}
-        </Text>
-
-        <View style={styles.timeSection}>
-          <Button
-            onPress={() => setVisible(true)}
-            uppercase={false}
-            mode="contained"
-            icon={"clock-outline"}
-            disabled={!reminderOn}
-          >
-            {Strings.configsScreen.pickTime}
-          </Button>
-          <Text
-            style={{
-              color: !reminderOn
-                ? Colors.dark.onSurfaceDisabled
-                : Colors.dark.onSurface,
-            }}
-            variant="displaySmall"
-          >
-            {hour.toString()}:{minutes.toString()}
+    <>
+      <Container title={Strings.configsScreen.title} showGoBack>
+        <View style={styles.darkModeSection}>
+          <Text variant="titleMedium">{Strings.configsScreen.alarmTitle}</Text>
+          <Switch value={reminderOn} onValueChange={onToggleReminder}></Switch>
+        </View>
+        <View style={styles.alarmSection}>
+          <Text variant="bodyMedium">
+            {Strings.configsScreen.alarmDescription}
           </Text>
+
+          <View style={styles.timeSection}>
+            <Button
+              onPress={() => setVisible(true)}
+              uppercase={false}
+              mode="contained"
+              icon={"clock-outline"}
+              disabled={!reminderOn}
+            >
+              {Strings.configsScreen.pickTime}
+            </Button>
+            <Text
+              style={{
+                color: !reminderOn
+                  ? Colors.dark.onSurfaceDisabled
+                  : Colors.dark.onSurface,
+              }}
+              variant="displaySmall"
+            >
+              {hour.toString()}:{minutes.toString()}
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.darkModeSection}>
-        <Text variant="titleMedium">{Strings.configsScreen.darkMode}</Text>
-        <Switch value={isDarkModeOn} onValueChange={onToggleDarkMode}></Switch>
-      </View>
-
-      <View style={styles.accountSection}>
-        <Text variant="titleMedium">{Strings.configsScreen.account}</Text>
-
-        {userName === "" ? (
-          <ActivityIndicator />
-        ) : (
-          <Text variant="bodyMedium">{userName}</Text>
-        )}
-
-        <View style={styles.timeSection}>
-          <Button
-            style={{ marginRight: Dimensions.padding.halfContainer }}
-            onPress={onLogOut}
-            uppercase={false}
-            mode="contained"
-          >
-            {Strings.configsScreen.logOut}
-          </Button>
-
-          <Button
-            textColor={Colors.dark.onError}
-            buttonColor={Colors.dark.error}
-            icon={"alert"}
-            uppercase={false}
-            mode="contained"
-          >
-            {Strings.configsScreen.deleteAccount}
-          </Button>
+        <View style={styles.darkModeSection}>
+          <Text variant="titleMedium">{Strings.configsScreen.darkMode}</Text>
+          <Switch
+            value={isDarkModeOn}
+            onValueChange={onToggleDarkMode}
+          ></Switch>
         </View>
-      </View>
 
-      <TimePickerModal
-        label={Strings.configsScreen.timePickerLabel}
-        cancelLabel={Strings.configsScreen.timePickerCancelLabel}
-        visible={visible}
-        onDismiss={onDismiss}
-        onConfirm={onConfirm}
-        defaultInputType="keyboard"
-        locale="pt"
-      />
-    </Container>
+        <View style={styles.accountSection}>
+          <Text variant="titleMedium">{Strings.configsScreen.account}</Text>
+
+          {userName === "" ? (
+            <ActivityIndicator />
+          ) : (
+            <Text variant="bodyMedium">{userName}</Text>
+          )}
+
+          <View style={styles.timeSection}>
+            <Button
+              style={{ marginRight: Dimensions.padding.halfContainer }}
+              onPress={onLogOut}
+              uppercase={false}
+              mode="contained"
+            >
+              {Strings.configsScreen.logOut}
+            </Button>
+
+            <Button
+              textColor={Colors.dark.onError}
+              buttonColor={Colors.dark.error}
+              icon={"alert"}
+              uppercase={false}
+              mode="contained"
+              onPress={() => setDeleteModalVisible(true)}
+            >
+              {Strings.configsScreen.deleteAccount}
+            </Button>
+          </View>
+        </View>
+
+        <TimePickerModal
+          label={Strings.configsScreen.timePickerLabel}
+          cancelLabel={Strings.configsScreen.timePickerCancelLabel}
+          visible={visible}
+          onDismiss={onDismiss}
+          onConfirm={onConfirm}
+          defaultInputType="keyboard"
+          locale="pt"
+        />
+      </Container>
+      <Portal>
+        <Dialog
+          visible={deleteModalVisible}
+          onDismiss={() => setDeleteModalVisible(false)}
+        >
+          <Dialog.Title> {Strings.configsScreen.deleteAccount}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              {Strings.configsScreen.deleteAccountDescription}
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDeleteModalVisible(false)}>Ok!</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    </>
   );
 }
 

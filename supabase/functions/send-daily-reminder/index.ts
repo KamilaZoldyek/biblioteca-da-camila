@@ -20,14 +20,12 @@ const NOTIFICATION_TITLES = [
   "Ahem.",
 ];
 
-// função principal
 serve(async () => {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE_ROLE_KEY = Deno.env.get("SERVICE_ROLE_KEY")!;
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-  // busca usuários com token e livros não lidos
   const { data: users, error } = await supabase
     .from("users")
     .select(
@@ -52,7 +50,6 @@ serve(async () => {
 
   const notifications: any[] = [];
 
-  // para cada user, decide se está no horário certo (±5min)
   for (const user of users) {
     if (!user.reminder_time || !user.expo_push_token) continue;
 
@@ -60,7 +57,7 @@ serve(async () => {
     const targetMinutes = h * 60 + m;
     const diff = Math.abs(nowMinutes - targetMinutes);
 
-    if (diff > 5) continue; // fora do horário
+    if (diff > 5) continue; 
 
     const unread = user.books ?? [];
     if (!unread.length) continue;
@@ -90,7 +87,6 @@ serve(async () => {
 
   console.log(`Enviando ${notifications.length} notificações...`);
 
-  // envio via API oficial do Expo
   const expoResponse = await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {

@@ -5,7 +5,7 @@ export const Strings = {
     screenName: "HomeScreen",
     fabAdd: "Adicionar",
     fabLogin: "Login",
-    searchPlaceholder: "Pesquise uma obra, autor ou coleção",
+    searchPlaceholder: "Pesquise uma obra ou autor",
     searchResultText: "Resultados de busca para: ",
     collections: "Coleções",
     emptyList: "Clique no + para adicionar um livro",
@@ -31,7 +31,8 @@ export const Strings = {
     timePickerCancelLabel: "Cancelar",
     account: "Conta",
     logOut: 'Log out',
-    deleteAccount: 'Apagar conta'
+    deleteAccount: 'Apagar conta',
+    deleteAccountDescription: 'Para apagar sua conta, entre em contato comigo por e-mail ou pelo Instagram.\n\nVou apagar sua conta no banco de dados. Não tem como recuperar depois.'
   },
   loginScreen: {
     screenName: "LoginScreen",
@@ -44,8 +45,9 @@ export const Strings = {
     title: 'Nova conta',
     emailPlaceholder: 'Insira seu email',
     passwordPlaceholder: 'Crie uma senha',
-    button: 'Criar nova conta'
-
+    button: 'Criar nova conta',
+    disclaimersTitle: 'Antes de criar sua conta, saiba que:',
+    disclaimers: '- Esse app está em teste ainda, por isso, não o use a sério.\n- Eu uso o tier gratuito do servidor, então pode cair a qualquer momento.\n- Use um e-mail falso, pode inventar um, não há verificação.\n- Use uma senha diferente das que normalmente usa.\n- Não implementei troca de senha ainda, nem recuperação de senha. Se você esquecer, já era, porque eu não consigo ver sua senha no banco de dados.\n- Obrigada por testar <3'
   },
   aboutScreen: {
     screenName: "AboutScreen",

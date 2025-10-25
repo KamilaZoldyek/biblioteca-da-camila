@@ -12,6 +12,7 @@ import {
 } from "@react-navigation/native";
 import merge from "deepmerge";
 import { useFonts } from "expo-font";
+import * as Notifications from "expo-notifications";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
@@ -22,10 +23,7 @@ import {
   PaperProvider,
 } from "react-native-paper";
 import { pt, registerTranslation } from "react-native-paper-dates";
-import * as Notifications from "expo-notifications";
-import './firebaseConfig'
-
-
+import "./firebaseConfig";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,6 +47,21 @@ export default function RootLayout() {
 
   registerTranslation("pt", pt);
 
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const isbn = response.notification.request.content.data.isbn;
+        if (isbn) {
+          router.push({
+            pathname: "/BookScreen",
+            params: { isbn: isbn },
+          });
+        }
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
       setTheme(mode);

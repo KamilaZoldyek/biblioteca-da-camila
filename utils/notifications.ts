@@ -15,7 +15,6 @@ export async function registerForPushNotificationsAsync(userId: string) {
     const projectId = Constants?.expoConfig?.extra?.eas?.projectId ??
         Constants?.easConfig?.projectId;
 
-    console.log("chamou?");
     const { status: existingStatus } = await Notifications
         .getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -38,18 +37,11 @@ export async function registerForPushNotificationsAsync(userId: string) {
                 projectId,
             })
         ).data;
-        console.log(pushTokenString);
         return pushTokenString;
     } catch (e: unknown) {
-        console.log(e)
+        console.log(e);
     }
 
-    // obtém o token do Expo
-    //const token = (await Notifications.getExpoPushTokenAsync()).data; ///
-    //console.log("finalStatus");
-    console.log("Expo push token:", pushTokenString);
-
-    // salva o token no Supabaser
     const { error } = await supabase
         .from("users")
         .update({ expo_push_token: pushTokenString })
