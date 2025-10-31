@@ -129,7 +129,9 @@ export default function MetadataScreen() {
   }, []);
 
   useEffect(() => {
-    verifyDuplicate(ISBN);
+    if (!isEditing) {
+      verifyDuplicate(ISBN);
+    }
   }, []);
 
   useEffect(() => {
