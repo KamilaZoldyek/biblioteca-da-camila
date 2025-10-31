@@ -9,7 +9,13 @@ import { router, useFocusEffect } from "expo-router";
 import { getFirestore } from "firebase/firestore";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { BackHandler, FlatList, StyleSheet, View } from "react-native";
+import {
+  BackHandler,
+  FlatList,
+  StyleSheet,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { firebaseApp } from "./firebaseConfig";
 
 import { useIsFocused } from "@react-navigation/native";
@@ -79,6 +85,7 @@ export default function HomeScreen() {
         .eq("user_id", user?.id);
 
       if (error) {
+        ToastAndroid.show("Erro ao buscar coleções", ToastAndroid.LONG);
         console.log(error);
         console.error("Erro ao buscar coleções:", error);
 
@@ -115,7 +122,8 @@ export default function HomeScreen() {
         return;
       }
 
-      const formattedBooks = data.map((book) => { ///
+      const formattedBooks = data.map((book) => {
+        ///
         const tags = [
           book.book_reading_status,
           book.book_kind,
@@ -153,7 +161,6 @@ export default function HomeScreen() {
   };
 
   const findItem = () => {
-    //TODO: add collection
     const result: BookList[] = [];
     allBooks.map((item) => {
       if (

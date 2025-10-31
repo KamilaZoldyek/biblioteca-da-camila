@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  ToastAndroid,
   useColorScheme,
   View,
 } from "react-native";
@@ -52,6 +53,7 @@ export default function SignUpScreen() {
 
     if (error) {
       setShowLoading(false);
+      ToastAndroid.show("Erro ao criar conta", ToastAndroid.LONG);
       console.log(error);
       return;
     }
@@ -82,7 +84,9 @@ export default function SignUpScreen() {
             <Text variant="titleMedium">
               {Strings.signUpScreen.disclaimersTitle}
             </Text>
-            <Text variant="bodyMedium" style={{paddingTop: 8}}>{Strings.signUpScreen.disclaimers}</Text>
+            <Text variant="bodyMedium" style={{ paddingTop: 8 }}>
+              {Strings.signUpScreen.disclaimers}
+            </Text>
           </View>
           <View style={styles.buttons}>
             <Controller

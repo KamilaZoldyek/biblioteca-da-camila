@@ -29,7 +29,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.data) {
-      return Promise.reject(error); //TODO mensagem mais legal
+      return Promise.reject(error);
     }
   }
 );

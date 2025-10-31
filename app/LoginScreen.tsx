@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  ToastAndroid,
   useColorScheme,
   View,
 } from "react-native";
@@ -52,6 +53,7 @@ export default function LoginScreen() {
 
     if (error) {
       setShowLoading(false);
+      ToastAndroid.show("Erro no login", ToastAndroid.LONG);
       console.log("login error", error);
       return;
     }
