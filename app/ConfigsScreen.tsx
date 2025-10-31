@@ -7,6 +7,7 @@ import {
   storedThemeDataOrColorScheme,
 } from "@/Storage/ThemeData";
 import { convertLocalToUTC } from "@/utils/timeConversion";
+import { formatMinute } from "@/utils/util";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
@@ -97,7 +98,7 @@ export default function ConfigsScreen() {
       setVisible(false);
       setHour(hours);
       setMinutes(minutes);
-      const time = hours.toString() + ":" + minutes.toString();
+      const time = hours.toString() + ":" + formatMinute(minutes);
       setUserReminder(user?.id!, time);
     },
     [user?.id]
@@ -193,7 +194,7 @@ export default function ConfigsScreen() {
               }}
               variant="displaySmall"
             >
-              {hour.toString()}:{minutes.toString()}
+              {hour.toString()}:{formatMinute(minutes)}
             </Text>
           </View>
         </View>

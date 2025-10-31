@@ -97,6 +97,8 @@ export default function MetadataScreen() {
   const [base64, setBase64] = useState("");
   const [filePath, setFilePath] = useState("");
   const [contentType, setContentType] = useState("");
+  const [duplicatedISBNErrorModal, setDuplicatedISBNErrorModal] =
+    useState(false);
 
   const { control, handleSubmit, formState, reset, setValue } =
     useForm<BookFormData>({
@@ -119,6 +121,38 @@ export default function MetadataScreen() {
         collection_name: "",
       },
     });
+
+  //Typescript tá chorando porque a dependency array tá vazia,
+  //mas É PRA FICAR VAZIA, só quero o loading aparecendo uma vez só, chora mais
+  useEffect(() => {
+    handleLoading();
+  }, []);
+
+  useEffect(() => {
+    verifyDuplicate(ISBN);
+  }, []);
+
+  useEffect(() => {
+    const loadFromAPI = async () => {
+      if (!isEditing) {
+        await api
+          .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
+          .then((response) => {
+            if (response.data) {
+              setData(response.data.items);
+              setBookInfo(response.data.items[0].volumeInfo);
+            } else {
+              console.log("F"); //press F to pay respect
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    };
+
+    loadFromAPI();
+  }, [ISBN, isEditing]);
 
   useEffect(() => {
     if (bookInfo) {
@@ -157,34 +191,6 @@ export default function MetadataScreen() {
     setShowLoading(false);
   };
 
-  //Typescript tá chorando porque a dependency array tá vazia,
-  //mas É PRA FICAR VAZIA, só quero o loading aparecendo uma vez só, chora mais
-  useEffect(() => {
-    handleLoading();
-  }, []);
-
-  useEffect(() => {
-    const loadFromAPI = async () => {
-      if (!isEditing) {
-        await api
-          .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
-          .then((response) => {
-            if (response.data) {
-              setData(response.data.items);
-              setBookInfo(response.data.items[0].volumeInfo);
-            } else {
-              console.log("F"); //press F to pay respect
-            }
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
-    };
-
-    loadFromAPI();
-  }, [ISBN, isEditing]);
-
   useEffect(() => {
     storedThemeDataOrColorScheme(colorScheme).then((mode) => {
       setTheme(mode);
@@ -194,7 +200,11 @@ export default function MetadataScreen() {
   useFocusEffect(
     useCallback(() => {
       const backAction = () => {
-        setShowGoBackModal(true);
+        if (showWebview) {
+          setShowWebview(false);
+        } else {
+          setShowGoBackModal(true);
+        }
         return true;
       };
 
@@ -204,7 +214,7 @@ export default function MetadataScreen() {
       );
 
       return () => subscription.remove();
-    }, [])
+    }, [showWebview])
   );
 
   const handleImageUpload = async (type: string) => {
@@ -246,6 +256,11 @@ export default function MetadataScreen() {
     router.navigate("/HomeScreen");
   };
 
+  const onISBNError = () => {
+    setDuplicatedISBNErrorModal(false);
+    router.replace("/HomeScreen");
+  };
+
   const handleImageUploadToSupabase = async () => {
     try {
       const { data, error } = await supabase.storage
@@ -277,6 +292,22 @@ export default function MetadataScreen() {
       return imgURL;
     }
     return IMAGE_PLACEHOLDER;
+  };
+
+  const verifyDuplicate = async (isbn: string) => {
+    const { data, error } = await supabase
+      .from("books")
+      .select("isbn")
+      .eq("user_id", user?.id)
+      .eq("isbn", ISBN)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro ao verificar livro:", error);
+    } else if (data) {
+      setDuplicatedISBNErrorModal(true);
+    }
+    return;
   };
 
   const fetchBookWithCollection = async (isbn: string) => {
@@ -384,6 +415,7 @@ export default function MetadataScreen() {
       if (error) {
         setShowLoading(false);
         //TODO tratar erro de isbn duplicado
+        setDuplicatedISBNErrorModal(true);
         console.error("Erro ao criar livro e coleção:", error);
         console.log("Erro ao criar livro e coleção:", error);
         return;
@@ -475,6 +507,7 @@ export default function MetadataScreen() {
 
     setShowLoading(false);
 
+    router.dismissAll();
     router.replace("/HomeScreen");
   };
 
@@ -761,7 +794,7 @@ export default function MetadataScreen() {
             <Button
               icon={"upload"}
               mode="contained"
-              style={styles.chip}
+              style={styles.fixedChip}
               onPress={() => handleImageUpload("upload")}
             >
               {Strings.metadataScreen.uploadCoverCTA}
@@ -769,7 +802,7 @@ export default function MetadataScreen() {
             <Button
               icon={"camera"}
               mode="contained"
-              style={styles.chip}
+              style={styles.fixedChip}
               onPress={() => handleImageUpload("camera")}
             >
               {Strings.metadataScreen.cameraCoverCTA}
@@ -940,6 +973,22 @@ export default function MetadataScreen() {
           </Dialog>
         </Portal>
       )}
+      <Portal>
+        <Dialog visible={duplicatedISBNErrorModal} onDismiss={onISBNError}>
+          <Dialog.Icon icon="book-check" />
+          <Dialog.Title style={{ alignSelf: "center" }}>
+            {Strings.metadataScreen.isbnErrorModalTitle}
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={{ alignSelf: "center" }} variant="bodyMedium">
+              {Strings.metadataScreen.isbnErrorModalDesc}
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={onISBNError}>{Strings.metadataScreen.ok}</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 }
@@ -957,11 +1006,16 @@ const styles = StyleSheet.create({
   mediumMarginBottom: {
     marginBottom: Dimensions.margin.dividerBetweenPublisherAndYear,
   },
-  chip: {
+  fixedChip: {
     alignSelf: "flex-start",
     marginVertical: Dimensions.padding.halfContainer,
     marginRight: Dimensions.padding.container,
     width: 150,
+  },
+  chip: {
+    alignSelf: "flex-start",
+    marginVertical: Dimensions.padding.halfContainer,
+    marginRight: Dimensions.padding.container,
   },
   blocks: {
     marginVertical: Dimensions.padding.container,

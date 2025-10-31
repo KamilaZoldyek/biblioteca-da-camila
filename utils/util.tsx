@@ -19,4 +19,6 @@ export const TAGS = [
   "Casa de Mãe",
 ];
 
-
+export const formatMinute = (value: number): string => {
+  return value.toString().padStart(2, '0');
+} //engraçado que eu conheci esse padStart essa semana mesmo na task do esfera

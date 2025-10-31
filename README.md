@@ -48,7 +48,6 @@ Essa lista eu mandei o chatgpt fazer.
 
 ### 🧭 Navegação
 ![React Navigation](https://img.shields.io/badge/React%20Navigation-7.x-ff7f50?logo=react)
-![Bottom Tabs](https://img.shields.io/badge/Bottom%20Tabs-7.x-orange)
 ![Screens](https://img.shields.io/badge/react--native--screens-4.11.1-ffcc00)
 ![Safe Area Context](https://img.shields.io/badge/Safe%20Area%20Context-5.4.0-ffcc00)
 
@@ -117,7 +116,6 @@ Essa lista eu mandei o chatgpt fazer.
 ---
 
 ### 🍞 Outros
-![Toastify RN](https://img.shields.io/badge/Toastify%20React%20Native-7.2.3-ff5722)
 ![Keyboard Aware ScrollView](https://img.shields.io/badge/Keyboard%20Aware%20ScrollView-0.9.5-009688)
 ![Reanimated](https://img.shields.io/badge/Reanimated-3.17.4-795548)
 

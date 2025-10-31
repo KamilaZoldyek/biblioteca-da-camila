@@ -11,10 +11,10 @@ import { supabase } from "@/lib/supabase";
 import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
 import { delay, IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { BackHandler, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
 export default function BookScreen() {
@@ -50,6 +50,24 @@ export default function BookScreen() {
     await delay(500);
     setShowLoading(false);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        if (showWebview) {
+          setShowWebview(false);
+        }
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => subscription.remove();
+    }, [showWebview])
+  );
 
   const fetchBookWithCollection = async (
     isbn: string
@@ -213,6 +231,7 @@ export default function BookScreen() {
               }
             />
             <ISBNSearchButton onPress={() => setShowWebview(true)} />
+            <View style={{ padding: 30 }} />
           </ScrollView>
         </Container>
       )}

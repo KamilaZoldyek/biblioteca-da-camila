@@ -5,13 +5,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { BookList, CollectionList } from "@/types/SupabaseSchemaTypes";
 import { registerForPushNotificationsAsync } from "@/utils/notifications";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { getFirestore } from "firebase/firestore";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { BackHandler, FlatList, StyleSheet, View } from "react-native";
 import { firebaseApp } from "./firebaseConfig";
 
+import { useIsFocused } from "@react-navigation/native";
 import {
   Button,
   Chip,
@@ -46,6 +47,7 @@ export default function HomeScreen() {
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
 
   const db = getFirestore(firebaseApp);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     async function setupPush() {
@@ -88,7 +90,13 @@ export default function HomeScreen() {
           title: coll.collection_name,
           data: coll.books ?? [],
         }));
-        setSections(mapped);
+
+        const sortedMapped = mapped.map((section) => ({
+          ...section,
+          data: [...section.data].sort((a, b) => Number(a.book_volume) - Number(b.book_volume)),
+        }));
+
+        setSections(sortedMapped);
       }
     };
 
@@ -199,6 +207,22 @@ export default function HomeScreen() {
     }
   }, [showCollections]);
 
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => subscription.remove();
+    }, [])
+  );
+
   const handleFAB = ({ nativeEvent }) => {
     const currentScrollPosition =
       Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
@@ -297,6 +321,7 @@ export default function HomeScreen() {
         {showCollections ? (
           <SectionGrid
             contentContainerStyle={styles.flatgrid}
+            showsVerticalScrollIndicator={false}
             onScroll={handleFAB}
             sections={sections}
             renderItem={({ item }) => (
@@ -375,26 +400,28 @@ export default function HomeScreen() {
           style={[styles.fabStyle]}
         /> */}
 
-        <Portal>
-          <FAB.Group
-            open={open}
-            visible
-            icon={open ? "book-plus" : "plus"}
-            actions={[
-              {
-                icon: "pencil",
-                label: Strings.homeScreen.addISBNManually,
-                onPress: () => setManualISBNVisible(true),
-              },
-              {
-                icon: "barcode",
-                label: Strings.homeScreen.addISBNScan,
-                onPress: onFABPress,
-              },
-            ]}
-            onStateChange={onStateChange}
-          />
-        </Portal>
+        {isFocused && (
+          <Portal>
+            <FAB.Group
+              open={open}
+              visible
+              icon={open ? "book-plus" : "plus"}
+              actions={[
+                {
+                  icon: "pencil",
+                  label: Strings.homeScreen.addISBNManually,
+                  onPress: () => setManualISBNVisible(true),
+                },
+                {
+                  icon: "barcode",
+                  label: Strings.homeScreen.addISBNScan,
+                  onPress: onFABPress,
+                },
+              ]}
+              onStateChange={onStateChange}
+            />
+          </Portal>
+        )}
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll

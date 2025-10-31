@@ -118,7 +118,7 @@ export const Strings = {
     noReviewReally: "Sem resenha, sem texto",
     manualScrapingTitle: "Scraping manual",
     manualScrapingDescription:
-      "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.",
+      "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.\n\nPara salvar uma imagem, pressione-a e permita os acessos.",
     isbnSearch: "ISBN search",
     save: "Salvar",
     modalOk: "Voltar assim mesmo",
@@ -126,6 +126,9 @@ export const Strings = {
     modalTitle: "Sair?",
     modalDescription:
       "Tem certeza que quer voltar? Você vai perder os dados não salvos!",
+    isbnErrorModalTitle: "Uepa!",
+    isbnErrorModalDesc: "Você já cadastrou esse livro, pegue outro!",
+    ok: 'OK'
   },
   bookScreen: {
     title: "Detalhes",

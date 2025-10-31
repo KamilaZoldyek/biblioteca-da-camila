@@ -1,4 +1,3 @@
-// app/firebaseConfig.ts
 import Constants from "expo-constants";
 import { getApp, getApps, initializeApp } from "firebase/app";
 

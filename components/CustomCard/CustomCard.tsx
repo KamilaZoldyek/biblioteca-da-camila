@@ -35,7 +35,7 @@ export default function CustomCard({
         title={title}
         subtitle={subtitle}
         left={(props) => <Icon source={iconName} size={35} />}
-        subtitleNumberOfLines={2}
+        subtitleNumberOfLines={6}
       />
     </Pressable>
   );
