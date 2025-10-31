@@ -93,7 +93,9 @@ export default function HomeScreen() {
 
         const sortedMapped = mapped.map((section) => ({
           ...section,
-          data: [...section.data].sort((a, b) => Number(a.book_volume) - Number(b.book_volume)),
+          data: [...section.data].sort(
+            (a, b) => Number(a.book_volume) - Number(b.book_volume)
+          ),
         }));
 
         setSections(sortedMapped);
@@ -113,7 +115,7 @@ export default function HomeScreen() {
         return;
       }
 
-      const formattedBooks = data.map((book) => {
+      const formattedBooks = data.map((book) => { ///
         const tags = [
           book.book_reading_status,
           book.book_kind,
@@ -151,7 +153,7 @@ export default function HomeScreen() {
   };
 
   const findItem = () => {
-    //TODO: fix
+    //TODO: add collection
     const result: BookList[] = [];
     allBooks.map((item) => {
       if (
@@ -160,10 +162,10 @@ export default function HomeScreen() {
           .includes(searchQuery.toLocaleLowerCase()) ||
         item.book_author
           .toLocaleLowerCase()
+          .includes(searchQuery.toLocaleLowerCase()) ||
+        item.collection_name
+          .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase())
-        // item.collection
-        //   .toLocaleLowerCase()
-        //   .includes(searchQuery.toLocaleLowerCase())
       ) {
         result.push(item);
       }
@@ -222,6 +224,11 @@ export default function HomeScreen() {
       return () => subscription.remove();
     }, [])
   );
+
+  const onChangeManualISBN = (text: string) => {
+    const noSpecialCharacters = text.replace(/[.\-]/g, "");
+    setInsertedISBNValue(noSpecialCharacters);
+  };
 
   const handleFAB = ({ nativeEvent }) => {
     const currentScrollPosition =
@@ -480,9 +487,7 @@ export default function HomeScreen() {
               keyboardType="numeric"
               label={Strings.homeScreen.manualISBNPlaceholder}
               value={insertedISBNValue}
-              onChangeText={(insertedISBNValue) =>
-                setInsertedISBNValue(insertedISBNValue)
-              }
+              onChangeText={onChangeManualISBN}
             />
           </Dialog.Content>
           <Dialog.Actions>

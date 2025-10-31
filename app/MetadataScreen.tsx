@@ -34,6 +34,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  ToastAndroid,
   useColorScheme,
   View,
 } from "react-native";
@@ -52,7 +53,7 @@ type BookFormData = {
   isbn: string;
   book_title: string;
   book_author: string;
-  book_volume: string;
+  book_volume: number;
   book_publisher?: string;
   book_year?: string;
   book_synopsis?: string;
@@ -107,7 +108,7 @@ export default function MetadataScreen() {
         isbn: ISBN,
         book_title: "",
         book_author: "",
-        book_volume: "1",
+        book_volume: 1,
         book_publisher: "",
         book_year: "",
         book_synopsis: "",
@@ -140,15 +141,16 @@ export default function MetadataScreen() {
         await api
           .get<GoogleBooksListResponse>("/volumes?q=isbn:" + ISBN) //TODO pelo amor de deus arruma isso
           .then((response) => {
-            if (response.data) {
+            if (response.data.items) {
               setData(response.data.items);
               setBookInfo(response.data.items[0].volumeInfo);
             } else {
-              console.log("F"); //press F to pay respect
+              console.log("F load from api"); //press F to pay respect
+              return;
             }
           })
           .catch((error) => {
-            console.log(error);
+            console.log("load from api error", error);
           });
       }
     };
@@ -224,7 +226,6 @@ export default function MetadataScreen() {
     if (type === "upload") {
       result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
-        aspect: [3, 5],
         quality: 1,
       });
     } else {
@@ -270,10 +271,12 @@ export default function MetadataScreen() {
         .upload(filePath, decode(base64), { contentType });
 
       if (error) {
+        ToastAndroid.show("Erro no upload da imagem", ToastAndroid.LONG);
         console.log("F upload de imagem", error.message);
         return;
       }
     } catch (e) {
+      ToastAndroid.show("Erro no upload da imagem", ToastAndroid.LONG);
       console.log("F upload de imagem", e);
     }
   };
@@ -395,12 +398,14 @@ export default function MetadataScreen() {
 
     const cover = await selectCoverSource();
 
+    const book_volume_casted = Number(formData.book_volume);
+
     if (!isEditing) {
       const { error } = await supabase.rpc("create_book_with_collection", {
         p_isbn: formData.isbn,
         p_book_title: formData.book_title,
         p_book_author: formData.book_author,
-        p_book_volume: formData.book_volume ?? "1",
+        p_book_volume: book_volume_casted,
         p_book_publisher: formData.book_publisher ?? "",
         p_book_year: formData.book_year ?? "",
         p_book_synopsis: formData.book_synopsis ?? "",
@@ -416,8 +421,9 @@ export default function MetadataScreen() {
 
       if (error) {
         setShowLoading(false);
-        //TODO tratar erro de isbn duplicado
-        setDuplicatedISBNErrorModal(true);
+
+        ToastAndroid.show("Erro ao criar livro", ToastAndroid.LONG);
+
         console.error("Erro ao criar livro e coleção:", error);
         console.log("Erro ao criar livro e coleção:", error);
         return;
@@ -438,7 +444,8 @@ export default function MetadataScreen() {
 
         if (findError) {
           setShowLoading(false);
-          console.log("F");
+          ToastAndroid.show("Erro ao criar coleção", ToastAndroid.LONG);
+          console.log("F new collection");
           return;
         }
 
@@ -456,6 +463,7 @@ export default function MetadataScreen() {
 
           if (insertError) {
             setShowLoading(false);
+            ToastAndroid.show("Erro ao atualizar coleção", ToastAndroid.LONG);
             console.error("Erro ao atualizar livro e coleção:", insertError);
             console.log("Erro ao atualizar livro e coleção:", insertError);
             return;
@@ -483,26 +491,41 @@ export default function MetadataScreen() {
           .eq("isbn", ISBN)
           .eq("user_id", user?.id);
 
+        const { error: errorDeleteCollections } = await supabase.rpc(
+          "delete_empty_collections_for_user"
+        );
         if (updateError) {
           setShowLoading(false);
+          ToastAndroid.show("Erro ao atualizar livro", ToastAndroid.LONG);
           console.error("Erro ao atualizar livro e coleção:", updateError);
           console.log("Erro ao atualizar livro e coleção:", updateError);
           return;
         }
 
-        //apaga collection vazia
-        if (currentCollectionId && currentCollectionId !== newCollectionId) {
-          const { count } = await supabase
-            .from("books")
-            .select("*", { count: "exact", head: true })
-            .eq("collection_id", currentCollectionId);
+        //apaga collection vazia - não funciona for some reason
+        // if (currentCollectionId && currentCollectionId !== newCollectionId) {
+        //   const { count } = await supabase
+        //     .from("books")
+        //     .select("*", { count: "exact", head: true })
+        //     .eq("collection_id", currentCollectionId);
 
-          if (count === 0) {
-            await supabase
-              .from("collections")
-              .delete()
-              .eq("collection_id", currentCollectionId);
-          }
+        //   if (count === 0) {
+        //     await supabase
+        //       .from("collections")
+        //       .delete()
+        //       .eq("collection_id", currentCollectionId);
+        //   }
+        // }
+
+        if (errorDeleteCollections) {
+          setShowLoading(false);
+          ToastAndroid.show(
+            "Erro ao apagar coleções vazias",
+            ToastAndroid.LONG
+          );
+          console.error("Erro ao apagar coleções vazias", updateError);
+          console.log("Erro ao apagar coleções vazias", updateError);
+          return;
         }
       }
     }

@@ -8,13 +8,19 @@ import {
 import { Colors, Dimensions, Strings } from "@/constants/";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { BookWithCollection } from "@/types/SupabaseSchemaTypes";
+import { BookMetadata, BookWithCollection } from "@/types/SupabaseSchemaTypes";
 import { delay, IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
-import { BackHandler, ScrollView, StyleSheet, View } from "react-native";
+import {
+  BackHandler,
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
 export default function BookScreen() {
@@ -56,6 +62,8 @@ export default function BookScreen() {
       const backAction = () => {
         if (showWebview) {
           setShowWebview(false);
+        } else {
+          router.back();
         }
         return true;
       };
@@ -142,7 +150,7 @@ export default function BookScreen() {
           </Text>
           {/* Nome da coleção - nṹmero do volume */}
           <Text style={styles.text} variant="bodyLarge">
-            {book?.collections?.collection_name} -{book?.book_volume}
+            {book?.collections?.collection_name} - {book?.book_volume}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
             {Strings.metadataScreen.year}: {book?.book_year}
@@ -182,8 +190,10 @@ export default function BookScreen() {
       .match({ isbn: ISBN, user_id: user?.id });
 
     if (error) {
+      ToastAndroid.show("Erro ao apagar livro", ToastAndroid.LONG);
       console.error("Erro ao apagar livro:", error);
     } else {
+      ToastAndroid.show("Livro apagado", ToastAndroid.LONG);
       console.log("Livro apagado");
       router.replace("/HomeScreen");
     }

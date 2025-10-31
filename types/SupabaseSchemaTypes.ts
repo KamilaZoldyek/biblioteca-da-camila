@@ -38,7 +38,7 @@ export type BookMetadata = {
   isbn: string;
   book_title: string;
   book_author: string;
-  book_volume: string;
+  book_volume: number;
   book_publisher: string;
   book_year: string;
   book_synopsis: string;
@@ -68,6 +68,7 @@ export type BookList = {
   book_cover_url: string;
   book_volume: string;
   book_tags?: string[];
+  collection_name: string;
 };
 
 export type CollectionList = {
