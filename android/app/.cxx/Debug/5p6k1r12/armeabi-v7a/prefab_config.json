@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "prefabPath": "/home/mosquito/.gradle/caches/modules-2/files-2.1/com.google.prefab/cli/2.1.0/aa32fec809c44fa531f01dcfb739b5b3304d3050/cli-2.1.0-all.jar",
+  "packages": [
+    "/home/mosquito/.gradle/caches/8.13/transforms/02f4e62ef70d0fc93be9bc2a425bcf8c/transformed/react-android-0.79.5-debug/prefab",
+    "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-reanimated/android/build/intermediates/prefab_package/debug/prefab",
+    "/home/mosquito/.gradle/caches/8.13/transforms/27a7f0033e58535ed0c1894ad16960b3/transformed/hermes-android-0.79.5-debug/prefab",
+    "/home/mosquito/.gradle/caches/8.13/transforms/ca2e9a424583ad05e29d4de87d8b31d6/transformed/fbjni-0.7.0/prefab"
+  ]
+}

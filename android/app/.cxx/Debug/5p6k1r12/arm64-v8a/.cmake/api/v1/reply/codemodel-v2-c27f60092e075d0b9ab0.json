@@ -1,0 +1,263 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					],
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "rnasyncstorage_autolinked_build",
+					"jsonFile" : "directory-rnasyncstorage_autolinked_build-Debug-03d46db71c9783912525.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "rngesturehandler_codegen_autolinked_build",
+					"jsonFile" : "directory-rngesturehandler_codegen_autolinked_build-Debug-83dc287b337946dffd16.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "rnreanimated_autolinked_build",
+					"jsonFile" : "directory-rnreanimated_autolinked_build-Debug-747a6c4264613be5b059.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "safeareacontext_autolinked_build",
+					"jsonFile" : "directory-safeareacontext_autolinked_build-Debug-0ee4c786c0321b87f0ef.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-safe-area-context/android/src/main/jni",
+					"targetIndexes" : 
+					[
+						8
+					]
+				},
+				{
+					"build" : "rnscreens_autolinked_build",
+					"jsonFile" : "directory-rnscreens_autolinked_build-Debug-c4ab9ca5010404a9b37b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-screens/android/src/main/jni",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "rnsvg_autolinked_build",
+					"jsonFile" : "directory-rnsvg_autolinked_build-Debug-d9580110e24128a0be68.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-svg/android/src/main/jni",
+					"targetIndexes" : 
+					[
+						7
+					]
+				},
+				{
+					"build" : "RNCWebViewSpec_autolinked_build",
+					"jsonFile" : "directory-RNCWebViewSpec_autolinked_build-Debug-182e54fda3502b0f7f7b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-webview/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "RNEdgeToEdge_autolinked_build",
+					"jsonFile" : "directory-RNEdgeToEdge_autolinked_build-Debug-85b0b08266ecf3d61a9a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native-edge-to-edge/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					],
+					"name" : "appmodules",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "appmodules::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appmodules-Debug-4f441f9a0f776b8d6934.json",
+					"name" : "appmodules",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "react_codegen_RNCWebViewSpec::@eb48929f9f7453740a6c",
+					"jsonFile" : "target-react_codegen_RNCWebViewSpec-Debug-042de3b43dd55261d009.json",
+					"name" : "react_codegen_RNCWebViewSpec",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "react_codegen_RNEdgeToEdge::@668218a48b60eb28aa9e",
+					"jsonFile" : "target-react_codegen_RNEdgeToEdge-Debug-e17f4e12659b9a32da95.json",
+					"name" : "react_codegen_RNEdgeToEdge",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "react_codegen_rnasyncstorage::@1596841e19ec5b9eeffe",
+					"jsonFile" : "target-react_codegen_rnasyncstorage-Debug-89988091fcb988401f9e.json",
+					"name" : "react_codegen_rnasyncstorage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec",
+					"jsonFile" : "target-react_codegen_rngesturehandler_codegen-Debug-5d175d48804bf6f2e3b3.json",
+					"name" : "react_codegen_rngesturehandler_codegen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "react_codegen_rnreanimated::@8afabad14bfffa3f8b9a",
+					"jsonFile" : "target-react_codegen_rnreanimated-Debug-a3701531408c1e994bf1.json",
+					"name" : "react_codegen_rnreanimated",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "react_codegen_rnscreens::@25bcbd507e98d3a854ad",
+					"jsonFile" : "target-react_codegen_rnscreens-Debug-c5f7747b9443df1a542d.json",
+					"name" : "react_codegen_rnscreens",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65",
+					"jsonFile" : "target-react_codegen_rnsvg-Debug-96f410e9663cec2bab1b.json",
+					"name" : "react_codegen_rnsvg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "react_codegen_safeareacontext::@7984cd80db47aa7b952a",
+					"jsonFile" : "target-react_codegen_safeareacontext-Debug-cc6853fb678db634d4a8.json",
+					"name" : "react_codegen_safeareacontext",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/android/app/.cxx/Debug/5p6k1r12/arm64-v8a",
+		"source" : "/home/mosquito/Dokumente/camila/biblioteca-da-camila/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
