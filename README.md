@@ -23,11 +23,14 @@ A ideia é eu poder catalogar meus livros impressos (principalmente meus mangás
 
 ## 📷 Prints
 
-<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/login.png" width="300" />
-<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/home.png" width="300" />
-<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/book.png" width="300" />
-<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/configs.png" width="300" />
-<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/notification.png" width="300" />
+|   |   |
+|---|---|
+| <img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/login.png" width="300" /> | <img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/home.png" width="300" /> |
+| <img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/book.png" width="300" /> | <img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/configs.png" width="300" /> |
+| <img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/notification.png" width="300" /> |    |
+
+
+
 
 
 ## 🚀 Próximos Passos
