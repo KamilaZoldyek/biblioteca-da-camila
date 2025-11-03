@@ -1,5 +1,7 @@
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 import * as React from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { StyleProp, StyleSheet, ToastAndroid, ViewStyle } from "react-native";
 
 import { WebView } from "react-native-webview";
 
@@ -9,11 +11,52 @@ type ISBNWebviewProps = {
 };
 
 export default function ISBNWebview({ isbn, customStyle }: ISBNWebviewProps) {
+  
+  const onDownload = async (downloadUrl: string) => {
+    if (downloadUrl) {
+      const filename = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
+      const fileUri = `${FileSystem.documentDirectory}${filename}`;
+
+      try {
+        const { uri } = await FileSystem.downloadAsync(downloadUrl, fileUri);
+        saveFile(uri);
+      } catch (error) {
+        console.error("Download error:", error);
+      }
+    }
+  };
+
+  const saveFile = async (fileUri: string) => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === "granted") {
+      const asset = await MediaLibrary.createAssetAsync(fileUri);
+      await MediaLibrary.createAlbumAsync("Download", asset, false);
+      ToastAndroid.show("Imagem baixada!", ToastAndroid.LONG);
+    }
+  };
+
+  const injectedJavaScript = `
+  document.querySelectorAll('img').forEach(img => {
+    img.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      window.ReactNativeWebView.postMessage(JSON.stringify({ image: img.src }));
+    });
+  });
+  true;
+`;
   return (
-      <WebView
-        style={styles.webViewContainer}
-        source={{ uri: "https://isbnsearch.org/isbn/" + isbn }}
-      />
+    <WebView
+      style={styles.webViewContainer}
+      source={{ uri: "https://isbnsearch.org/isbn/" + isbn }}
+      injectedJavaScript={injectedJavaScript}
+      onMessage={(event) => {
+        const data = JSON.parse(event.nativeEvent.data);
+        if (data.image) {
+          console.log("Imagem selecionada:", data.image);
+          onDownload(data.image);
+        }
+      }}
+    />
   );
 }
 
@@ -23,6 +66,3 @@ const styles = StyleSheet.create({
     marginTop: 35,
   },
 });
-// TODO: injection to long press images and download them
-
-// https://www.google.com/search?q=react-native-webview+long+press+image&client=ubuntu-sn&hs=AG0&sca_esv=67db8545f6bda9c4&channel=fs&sxsrf=AE3TifPDYf7hrOqUxCWdJInIIa4rCiUw7A%3A1757095297578&ei=gSW7aNOKI-HT1sQPgezl-AI&oq=react-native-webview+long+press&gs_lp=Egxnd3Mtd2l6LXNlcnAiH3JlYWN0LW5hdGl2ZS13ZWJ2aWV3IGxvbmcgcHJlc3MqAggAMgUQIRigAUjFN1DlEli7JXACeACQAQCYAZQDoAHEEqoBCTAuNi4zLjEuMbgBAcgBAPgBAZgCDKAC_g_CAggQABjvBRiwA8ICCxAAGIAEGKIEGLADwgIGEAAYFhgewgIIEAAYFhgeGArCAgUQABjvBcICCBAAGIAEGKIEmAMAiAYBkAYFkgcHMi42LjMuMaAH7DmyBwcwLjYuMy4xuAf0D8IHBzAuMi45LjHIBzc&sclient=gws-wiz-serp

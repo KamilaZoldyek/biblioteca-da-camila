@@ -1,4 +1,5 @@
 import { Dimensions } from "@/constants/";
+import { IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
 import * as React from "react";
 import {
@@ -39,7 +40,7 @@ export default function BookDisplayListItem({
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={require("../../assets/images/book-placeholder.svg")}
+          placeholder={IMAGE_PLACEHOLDER}
           source={image}
         />
         <Text
@@ -70,6 +71,6 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 250,
-   //borderRadius: Dimensions.borderRadius.bookCover,
+    //borderRadius: Dimensions.borderRadius.bookCover,
   },
 });

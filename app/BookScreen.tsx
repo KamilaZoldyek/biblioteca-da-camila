@@ -2,27 +2,133 @@ import {
   Container,
   ISBNSearchButton,
   ISBNWebview,
+  LoadingOverlay,
   TextblockWithTitle,
 } from "@/components";
-import { Dimensions, Strings } from "@/constants/";
+import { Colors, Dimensions, Strings } from "@/constants/";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { BookMetadata, BookWithCollection } from "@/types/SupabaseSchemaTypes";
+import { delay, IMAGE_PLACEHOLDER } from "@/utils/util";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import * as React from "react";
-import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import {
+  BackHandler,
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  View,
+} from "react-native";
 import { Button, Chip, Dialog, Portal, Text } from "react-native-paper";
 
 export default function BookScreen() {
-  const TAGS = ["Livro", "Lido", "Coleção completa", "Minha casa"];
+  const { user } = useAuth();
+
+  const item = useLocalSearchParams<{ isbn: string }>();
+  const ISBN = item.isbn;
+
   const [visible, setVisible] = useState(false);
   const [showWebview, setShowWebview] = useState(false);
+  const [book, setBook] = useState<BookWithCollection | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
+
+  const [showLoading, setShowLoading] = useState(false);
 
   const onDismiss = useCallback(() => {
     setVisible(false);
   }, [setVisible]);
 
   const goToEditScreen = () => {
-    router.push({ pathname: "/MetadataScreen", params: { name: "Editar" } });
+    router.push({
+      pathname: "/MetadataScreen",
+      params: { name: "Editar", isbn: ISBN },
+    });
+  };
+
+  useEffect(() => {
+    handleLoading();
+  }, []);
+
+  const handleLoading = async () => {
+    setShowLoading(true);
+    await delay(500);
+    setShowLoading(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        if (showWebview) {
+          setShowWebview(false);
+        } else {
+          router.back();
+        }
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => subscription.remove();
+    }, [showWebview])
+  );
+
+  const fetchBookWithCollection = async (
+    isbn: string
+  ): Promise<BookWithCollection> => {
+    const { data, error } = await supabase
+      .from("books")
+      .select(
+        `
+      isbn,
+      book_title,
+      book_author,
+      book_volume,
+      book_publisher,
+      book_year,
+      book_synopsis,
+      book_reading_status,
+      book_kind,
+      book_location,
+      book_collection_status,
+      book_cover_url,
+      book_rating,
+      book_review,
+      collection_id,
+      collections ( collection_name )
+    `
+      )
+      .eq("isbn", isbn)
+      .single<BookWithCollection>();
+
+    if (error) {
+      console.error("Erro ao buscar livro:", error);
+      return null;
+    } else {
+      setBook(data);
+      createTagList(data);
+    }
+
+    return data;
+  };
+
+  useEffect(() => {
+    fetchBookWithCollection(ISBN);
+  }, []);
+
+  const createTagList = (book: BookMetadata) => {
+    const tags = [
+      book.book_reading_status,
+      book.book_kind,
+      book.book_location,
+      "Coleção " + book.book_collection_status,
+    ];
+    setTags(tags);
+    return tags;
   };
 
   const renderMetadata = () => {
@@ -34,33 +140,33 @@ export default function BookScreen() {
           transition={500}
           allowDownscaling
           style={styles.image}
-          placeholder={require("../assets/images/book-placeholder.svg")}
-          source={"https://m.media-amazon.com/images/I/51tAD6LyZ-L.jpg"}
+          placeholder={IMAGE_PLACEHOLDER}
+          source={book?.book_cover_url}
         />
         <View style={styles.metadataText}>
-          <Text variant="headlineSmall">Fahrenheit 451</Text>
+          <Text variant="headlineSmall">{book?.book_title}</Text>
           <Text style={{ paddingBottom: 16 }} variant="titleMedium">
-            Ray Bradbury
+            {book?.book_author}
           </Text>
           {/* Nome da coleção - nṹmero do volume */}
           <Text style={styles.text} variant="bodyLarge">
-            Fahrenheit 451 - 1
+            {book?.collections?.collection_name} - {book?.book_volume}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.year}: 2012
+            {Strings.metadataScreen.year}: {book?.book_year}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.isbn}: 9788525052247
+            {Strings.metadataScreen.isbn}: {ISBN}
           </Text>
           <Text style={styles.text} variant="bodyLarge">
-            {Strings.metadataScreen.publisher}: Biblioteca Azul
+            {Strings.metadataScreen.publisher}: {book?.book_publisher}
           </Text>
           <Chip
             style={{ alignSelf: "flex-start" }}
             icon={"star"}
             mode="outlined"
           >
-            <Text variant="bodyLarge">5</Text>
+            <Text variant="bodyLarge">{book?.book_rating}</Text>
           </Chip>
         </View>
       </View>
@@ -68,7 +174,7 @@ export default function BookScreen() {
   };
 
   const renderTags = () => {
-    return TAGS.map((item, index) => {
+    return tags?.map((item, index) => {
       return (
         <Chip key={index} style={styles.chip} mode={"flat"}>
           {item}
@@ -77,9 +183,30 @@ export default function BookScreen() {
     });
   };
 
+  const deleteBook = async () => {
+    const { error } = await supabase
+      .from("books")
+      .delete()
+      .match({ isbn: ISBN, user_id: user?.id });
+
+    if (error) {
+      ToastAndroid.show("Erro ao apagar livro", ToastAndroid.LONG);
+      console.error("Erro ao apagar livro:", error);
+    } else {
+      ToastAndroid.show("Livro apagado", ToastAndroid.LONG);
+      console.log("Livro apagado");
+      router.replace("/HomeScreen");
+    }
+  };
+
   return (
     <>
-      {!showWebview && (
+      {showLoading && (
+        <View style={styles.loadingContainer}>
+          <LoadingOverlay />
+        </View>
+      )}
+      {!showWebview && !showLoading && (
         <Container
           title={Strings.bookScreen.title}
           showGoBack
@@ -92,24 +219,33 @@ export default function BookScreen() {
             {renderMetadata()}
             <View style={styles.tagsSection}>{renderTags()}</View>
 
-            <TextblockWithTitle
+            <TextblockWithTitle //SYNOPSIS
               customStyle={{ paddingBottom: Dimensions.padding.divider }}
-              chipText={Strings.metadataScreen.noSynopsis}
+              chipText={
+                book?.book_synopsis === ""
+                  ? Strings.metadataScreen.noSynopsis
+                  : undefined
+              }
               title={Strings.metadataScreen.synopsis}
+              text={book?.book_synopsis}
             />
 
-            <TextblockWithTitle
+            <TextblockWithTitle //REVIEW
               customStyle={{ paddingBottom: 50 }}
-              text={
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-              }
+              text={book?.book_review}
               title={Strings.metadataScreen.review}
+              chipText={
+                book?.book_review === ""
+                  ? Strings.metadataScreen.noReview
+                  : undefined
+              }
             />
             <ISBNSearchButton onPress={() => setShowWebview(true)} />
+            <View style={{ padding: 30 }} />
           </ScrollView>
         </Container>
       )}
-      {showWebview && <ISBNWebview isbn={"9788525052247"} />}
+      {showWebview && <ISBNWebview isbn={ISBN} />}
       {visible && (
         <Portal>
           <Dialog
@@ -128,9 +264,7 @@ export default function BookScreen() {
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={onDismiss}>{Strings.bookScreen.back}</Button>
-              <Button onPress={() => console.log("delete")}>
-                {Strings.bookScreen.delete}
-              </Button>
+              <Button onPress={deleteBook}>{Strings.bookScreen.delete}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -154,6 +288,7 @@ const styles = StyleSheet.create({
   metadataText: {
     padding: Dimensions.padding.container,
     flexDirection: "column",
+    flexShrink: 1,
   },
   text: {
     paddingBottom: Dimensions.padding.dividerInput,
@@ -174,5 +309,14 @@ const styles = StyleSheet.create({
   },
   center: {
     alignSelf: "center",
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    backgroundColor: Colors.dark.background,
   },
 });

@@ -1,43 +1,153 @@
 import { Container, TagList } from "@/components";
 import BookDisplayListItem from "@/components/BookDisplayListItem/BookDisplayListItem";
 import { Colors, Dimensions, Strings } from "@/constants/";
-import {
-  BookList,
-  getCollectionsFromBookList,
-  mockBookList,
-} from "@/constants/mocks";
-import { router } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { BookList, CollectionList } from "@/types/SupabaseSchemaTypes";
+import { registerForPushNotificationsAsync } from "@/utils/notifications";
+import { router, useFocusEffect } from "expo-router";
+import { getFirestore } from "firebase/firestore";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
 import {
-  AnimatedFAB,
+  BackHandler,
+  FlatList,
+  StyleSheet,
+  ToastAndroid,
+  View,
+} from "react-native";
+import { firebaseApp } from "./firebaseConfig";
+
+import { useIsFocused } from "@react-navigation/native";
+import {
+  Button,
   Chip,
+  Dialog,
   Divider,
+  FAB,
+  Portal,
   Searchbar,
   Text,
+  TextInput,
 } from "react-native-paper";
-import { FlatGrid, SectionGrid } from "react-native-super-grid";
+import { SectionGrid } from "react-native-super-grid";
 
 export default function HomeScreen() {
+  const { user } = useAuth();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [shouldShowResult, setShouldShowResult] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [forceClear, setForceClear] = useState(false);
   const [isExtended, setIsExtended] = useState(true);
+  const [sections, setSections] = useState<
+    { title: string; data: BookList[] }[]
+  >([]);
+  const [allBooks, setAllBooks] = useState<BookList[]>([]);
+  const [state, setState] = React.useState({ open: false });
+  const onStateChange = ({ open }) => setState({ open });
+  const { open } = state;
+  const [manualISBNVisible, setManualISBNVisible] = useState(false);
+  const [insertedISBNValue, setInsertedISBNValue] = useState("");
+  const [isTextInputFocused, setIsTextInputFocused] = useState(false);
 
-  const collections = getCollectionsFromBookList(mockBookList);
+  const db = getFirestore(firebaseApp);
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    async function setupPush() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) await registerForPushNotificationsAsync(user.id);
+    }
+    setupPush();
+  }, []);
+
+  useEffect(() => {
+    const fetchCollectionsWithBooks = async () => {
+      const { data, error } = await supabase
+        .from("collections")
+        .select(
+          `
+          collection_id,
+          collection_name,
+          books (
+            isbn,
+            book_title,
+            book_author,
+            book_cover_url,
+            book_volume
+          )
+        `
+        )
+        .eq("user_id", user?.id);
+
+      if (error) {
+        ToastAndroid.show("Erro ao buscar coleções", ToastAndroid.LONG);
+        console.log(error);
+        console.error("Erro ao buscar coleções:", error);
+
+        return;
+      }
+
+      if (data) {
+        const mapped = data.map((coll: CollectionList) => ({
+          title: coll.collection_name,
+          data: coll.books ?? [],
+        }));
+
+        const sortedMapped = mapped.map((section) => ({
+          ...section,
+          data: [...section.data].sort(
+            (a, b) => Number(a.book_volume) - Number(b.book_volume)
+          ),
+        }));
+
+        setSections(sortedMapped);
+      }
+    };
+
+    fetchCollectionsWithBooks();
+  }, [user?.id]);
+
+  useEffect(() => {
+    const fetchAllBooks = async () => {
+      const { data, error } = await supabase.rpc("get_user_books", {
+        uid: user?.id,
+      });
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const formattedBooks = data.map((book) => {
+        ///
+        const tags = [
+          book.book_reading_status,
+          book.book_kind,
+          book.book_location,
+          book.book_collection_status,
+        ].filter(Boolean);
+
+        return {
+          ...book,
+          book_tags: tags,
+        };
+      });
+
+      setAllBooks(formattedBooks);
+    };
+
+    fetchAllBooks();
+  }, [user?.id]);
 
   const handleConfigScreen = () => {
     router.navigate("/ConfigsScreen");
   };
-  // const handleAboutScreen = () => {
-  //   router.navigate("/AboutScreen");
-  // };
-   const handleAboutScreen = () => {
-    router.navigate("/LoginScreen");
+  const handleAboutScreen = () => {
+    router.navigate("/AboutScreen");
   };
 
   const handleSearch = (query: string) => {
@@ -51,16 +161,16 @@ export default function HomeScreen() {
   };
 
   const findItem = () => {
-    const result: BookList = [];
-    mockBookList.map((item) => {
+    const result: BookList[] = [];
+    allBooks.map((item) => {
       if (
-        item.title
+        item.book_title
           .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase()) ||
-        item.author
+        item.book_author
           .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase()) ||
-        item.collection
+        item.collection_name
           .toLocaleLowerCase()
           .includes(searchQuery.toLocaleLowerCase())
       ) {
@@ -71,35 +181,32 @@ export default function HomeScreen() {
   };
 
   const findAllBooksByTag = (tag: string) => {
-    const result: BookList = [];
-    mockBookList.map((item) => {
-      item.tags.map((i) => {
-        if (i === tag) {
-          result.push(item);
-        }
-      });
+    const result: BookList[] = [];
+    allBooks.map((item) => {
+      if (item.book_tags) {
+        item.book_tags.map((i) => {
+          if (i === tag) {
+            result.push(item);
+          }
+        });
+      }
+      return "";
     });
 
     return result;
   };
 
-  const whatDatabaseToUse = () => {
-    if (shouldShowResult) {
-      return findItem();
-    } else if (selectedTag === "") {
-      return mockBookList;
-    }
-
+  const whatDatabaseToUse = React.useCallback(() => {
+    if (shouldShowResult) return findItem();
+    if (selectedTag === "") return allBooks;
     return findAllBooksByTag(selectedTag);
-
-    // return [];
-  };
+  }, [shouldShowResult, selectedTag, allBooks, findItem]);
 
   const handleSelectedTag = (tag: string) => {
     setSelectedTag(tag);
     setShowCollections(false);
     setShouldShowResult(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   useEffect(() => {
@@ -108,6 +215,27 @@ export default function HomeScreen() {
       setForceClear(true);
     }
   }, [showCollections]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const backAction = () => {
+        BackHandler.exitApp();
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
+
+      return () => subscription.remove();
+    }, [])
+  );
+
+  const onChangeManualISBN = (text: string) => {
+    const noSpecialCharacters = text.replace(/[.\-]/g, "");
+    setInsertedISBNValue(noSpecialCharacters);
+  };
 
   const handleFAB = ({ nativeEvent }) => {
     const currentScrollPosition =
@@ -137,6 +265,26 @@ export default function HomeScreen() {
 
   const onPressBook = (isbnCode: string) => {
     router.push({ pathname: "/BookScreen", params: { isbn: isbnCode } });
+  };
+
+  const onManualSearch = () => {
+    setManualISBNVisible(false);
+    if (insertedISBNValue.length === 10 || insertedISBNValue.length === 13) {
+      router.push({
+        pathname: "/MetadataScreen",
+        params: { isbn: insertedISBNValue },
+      });
+    }
+  };
+
+  const manualISBNError = !(
+    insertedISBNValue.length === 10 || insertedISBNValue.length === 13
+  );
+
+  const clearManualISBN = () => {
+    setIsTextInputFocused(false);
+    setInsertedISBNValue("");
+    setManualISBNVisible(false);
   };
 
   return (
@@ -187,60 +335,107 @@ export default function HomeScreen() {
         {showCollections ? (
           <SectionGrid
             contentContainerStyle={styles.flatgrid}
+            showsVerticalScrollIndicator={false}
             onScroll={handleFAB}
-            itemDimension={130}
-            sections={collections}
+            sections={sections}
             renderItem={({ item }) => (
               <View style={styles.booksSectionList}>
                 <BookDisplayListItem
-                  title={item.title}
-                  author={item.author}
-                  volume={item.volume}
+                  title={item.book_title}
+                  author={item.book_author}
+                  volume={item.book_volume}
                   onPress={(isbnCode) => onPressBook(isbnCode)}
                   isbn={item.isbn}
-                  image={item.image}
+                  image={item.book_cover_url}
                 />
               </View>
             )}
-            renderSectionHeader={({ section: { collectionName } }) => (
+            renderSectionHeader={({ section: { title } }) => (
               <View style={styles.collectionHeader}>
-                <Text variant="titleLarge">{collectionName}</Text>
+                <Text variant="titleLarge">{title}</Text>
                 <Divider bold />
               </View>
             )}
           />
         ) : (
-          <FlatGrid
-            contentContainerStyle={styles.flatgrid}
-            ListEmptyComponent={renderEmptyComponent}
-            itemDimension={130}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleFAB}
+          <FlatList
             data={whatDatabaseToUse()}
             numColumns={2}
+            onScroll={handleFAB}
+            contentContainerStyle={styles.flatgrid}
+            ListEmptyComponent={renderEmptyComponent}
+            showsVerticalScrollIndicator={false}
+            extraData={[shouldShowResult, selectedTag, allBooks.length]}
             renderItem={({ item }) => (
               <View style={styles.books}>
                 <BookDisplayListItem
-                  title={item.title}
-                  author={item.author}
-                  volume={item.volume}
+                  title={item.book_title}
+                  author={item.book_author}
+                  volume={item.book_volume}
                   onPress={(isbnCode) => onPressBook(isbnCode)}
                   isbn={item.isbn}
-                  image={item.image}
+                  image={item.book_cover_url}
                 />
               </View>
             )}
           />
+
+          // <FlatGrid
+          //   contentContainerStyle={styles.flatgrid}
+          //   keyExtractor={(item) => item.isbn}
+          //   ListEmptyComponent={renderEmptyComponent}
+          //   itemDimension={130}
+          //   showsVerticalScrollIndicator={false}
+          //   onScroll={handleFAB}
+          //   data={whatDatabaseToUse()}
+          //   extraData={[shouldShowResult, selectedTag, allBooks.length]}
+          //   numColumns={2}
+          //   renderItem={({ item }) => (
+          //     <View style={styles.books}>
+          //       <BookDisplayListItem
+          //         title={item.book_title}
+          //         author={item.book_author}
+          //         volume={item.book_volume}
+          //         onPress={(isbnCode) => onPressBook(isbnCode)}
+          //         isbn={item.isbn}
+          //         image={item.book_cover_url}
+          //       />
+          //     </View>
+          //   )}
+          // />
         )}
 
-        <AnimatedFAB
+        {/* <AnimatedFAB
           icon={"plus"}
           label={Strings.homeScreen.fabAdd}
           extended={isExtended}
           onPress={onFABPress}
           visible={true}
           style={[styles.fabStyle]}
-        />
+        /> */}
+
+        {isFocused && (
+          <Portal>
+            <FAB.Group
+              open={open}
+              visible
+              icon={open ? "book-plus" : "plus"}
+              actions={[
+                {
+                  icon: "pencil",
+                  label: Strings.homeScreen.addISBNManually,
+                  onPress: () => setManualISBNVisible(true),
+                },
+                {
+                  icon: "barcode",
+                  label: Strings.homeScreen.addISBNScan,
+                  onPress: onFABPress,
+                },
+              ]}
+              onStateChange={onStateChange}
+            />
+          </Portal>
+        )}
 
         {/* <SectionList
           stickyHeaderHiddenOnScroll
@@ -276,6 +471,42 @@ export default function HomeScreen() {
           />
         )} */}
       </Container>
+      <Portal>
+        <Dialog
+          style={styles.manualISBNTextInput}
+          visible={manualISBNVisible}
+          onDismiss={clearManualISBN}
+        >
+          <Dialog.Icon icon="book-plus" />
+          <Dialog.Title style={{ textAlign: "center" }}>
+            {Strings.homeScreen.manualISBNTitle}
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text style={{ paddingVertical: 16 }} variant="bodyMedium">
+              {Strings.homeScreen.manualISBNDescription}
+            </Text>
+            <TextInput
+              onFocus={() => setIsTextInputFocused(true)}
+              onBlur={clearManualISBN}
+              mode="outlined"
+              maxLength={13}
+              error={manualISBNError && isTextInputFocused}
+              keyboardType="numeric"
+              label={Strings.homeScreen.manualISBNPlaceholder}
+              value={insertedISBNValue}
+              onChangeText={onChangeManualISBN}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={clearManualISBN}>
+              {Strings.homeScreen.manualISBNCancel}
+            </Button>
+            <Button onPress={onManualSearch}>
+              {Strings.homeScreen.manualISBNSearch}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </>
   );
 }
@@ -317,5 +548,8 @@ const styles = StyleSheet.create({
   },
   flatgrid: {
     paddingBottom: 150,
+  },
+  manualISBNTextInput: {
+    backgroundColor: Colors.dark.background,
   },
 });

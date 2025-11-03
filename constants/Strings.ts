@@ -9,6 +9,15 @@ export const Strings = {
     searchResultText: "Resultados de busca para: ",
     collections: "Coleções",
     emptyList: "Clique no + para adicionar um livro",
+    manualISBNTitle: 'Adicione um livro manualmente',
+    manualISBNDescription: '- O código ISBN possui 10 ou 13 números.\n\n- Geralmente está localizado na ficha catalográfica do livro, que fica nas primeiras páginas.',
+    manualISBNPlaceholder: 'Insira o ISBN',
+    manualISBNSearch: 'Buscar livro',
+    manualISBNCancel: 'Cancelar',
+    addISBNScan: "Escanear um ISBN",
+    addISBNManually: "Digitar um ISBN",
+
+
   },
   configsScreen: {
     title: "Configurações",
@@ -20,12 +29,25 @@ export const Strings = {
     darkMode: "Modo escuro",
     timePickerLabel: "Escolha um horário",
     timePickerCancelLabel: "Cancelar",
+    account: "Conta",
+    logOut: 'Log out',
+    deleteAccount: 'Apagar conta',
+    deleteAccountDescription: 'Para apagar sua conta, entre em contato comigo por e-mail ou pelo Instagram.\n\nVou apagar sua conta no banco de dados. Não tem como recuperar depois.'
   },
   loginScreen: {
     screenName: "LoginScreen",
     title: "Login",
     password: 'Senha',
-    visitor: 'Entrar como visitante',
+    visitor: 'Criar nova conta',
+  },
+  signUpScreen:{
+    screenName: 'SignUpScreen',
+    title: 'Nova conta',
+    emailPlaceholder: 'Insira seu email',
+    passwordPlaceholder: 'Crie uma senha',
+    button: 'Criar nova conta',
+    disclaimersTitle: 'Antes de criar sua conta, saiba que:',
+    disclaimers: '- Esse app está em teste ainda, por isso, não o use a sério.\n- Eu uso o tier gratuito do servidor, então pode cair a qualquer momento.\n- Use um e-mail falso, pode inventar um, não há verificação.\n- Use uma senha diferente das que normalmente usa.\n- Não implementei troca de senha ainda, nem recuperação de senha. Se você esquecer, já era, porque eu não consigo ver sua senha no banco de dados.\n- Obrigada por testar <3'
   },
   aboutScreen: {
     screenName: "AboutScreen",
@@ -57,6 +79,8 @@ export const Strings = {
     bookTitle: "Título da obra",
     bookTitleHelper: "Só o título, sem adicionais. Campo obrigatório",
     collectionTitle: "Título da série",
+    volumeTitleHelper:
+      "Insira 1 em casos de livro único. Obrigatório.",
     collectionTitleHelper:
       "Insira o nome da obra em casos de livro único. Obrigatório.",
     author: "Autor",
@@ -86,6 +110,7 @@ export const Strings = {
     collectionIncomplete: "Coleção incompleta",
     coverArt: "Capa",
     uploadCoverCTA: "Upload da capa",
+    cameraCoverCTA: "Foto da capa",
     opinionTitle: "Opinião",
     rating: "Avaliação",
     review: "Resenha",
@@ -93,7 +118,7 @@ export const Strings = {
     noReviewReally: "Sem resenha, sem texto",
     manualScrapingTitle: "Scraping manual",
     manualScrapingDescription:
-      "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.",
+      "Use o ISBN Search para pegar arquivos e dados que o scan automático não pegou.\n\nPara salvar uma imagem, pressione-a e permita os acessos.",
     isbnSearch: "ISBN search",
     save: "Salvar",
     modalOk: "Voltar assim mesmo",
@@ -101,6 +126,9 @@ export const Strings = {
     modalTitle: "Sair?",
     modalDescription:
       "Tem certeza que quer voltar? Você vai perder os dados não salvos!",
+    isbnErrorModalTitle: "Uepa!",
+    isbnErrorModalDesc: "Você já cadastrou esse livro, pegue outro!",
+    ok: 'OK'
   },
   bookScreen: {
     title: "Detalhes",
