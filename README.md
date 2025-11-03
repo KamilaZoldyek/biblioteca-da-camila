@@ -10,7 +10,7 @@ A ideia é eu poder catalogar meus livros impressos (principalmente meus mangás
 
 ## ✨ Funcionalidades
 
-Esse bloco eu copiei do chatgpt e editei porque o coitado alucinou bonito.
+(Esse bloco eu copiei do chatgpt e editei porque o coitado alucinou bonito.)
 
 - 📖 Cadastro manual de livros (título, autor, editora, etc.)
 - 📷 Escaneamento de código de barras (ISBN)
@@ -20,6 +20,16 @@ Esse bloco eu copiei do chatgpt e editei porque o coitado alucinou bonito.
 - ☁️ Sincronização com banco remoto
 - 🔔 Lembrete de leitura passivo-agressivo estilo Duolingo
 
+
+## 📷 Prints
+
+<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/login.png" width="300" />
+<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/home.png" width="300" />
+<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/book.png" width="300" />
+<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/configs.png" width="300" />
+<img src="https://wrxchwepnruhjnsziquz.supabase.co/storage/v1/object/public/book-covers/github/notification.png" width="300" />
+
+
 ## 🚀 Próximos Passos
 
 - Guardar os dados offline
@@ -28,14 +38,15 @@ Esse bloco eu copiei do chatgpt e editei porque o coitado alucinou bonito.
 - Inserir tags
 - Deixar menos pessoal
 - Edição de senha/recuperação de senha
+- Edição de Coleções
 - Publicação na loja
 
 
 ## 🛠️ Tecnologias Utilizadas
 
-Criei um Figma para o app (link pendente)
+[Criei um Figma para o app](https://www.figma.com/design/Lp9v67gUnHqitixJn0kWxW/Biblioteca-da-Camila?m=auto&t=lTpPxNPjeO8vZGZf-1)
 
-Essa lista eu mandei o chatgpt fazer.
+Essa lista eu mandei o chatgpt fazer:
 
 ### 📱 Core do App
 ![React Native](https://img.shields.io/badge/React%20Native-0.79.5-61dafb?logo=react&logoColor=white)
@@ -55,13 +66,6 @@ Essa lista eu mandei o chatgpt fazer.
 
 ### 🧩 Interface e Layout
 ![React Native Paper](https://img.shields.io/badge/React%20Native%20Paper-5.14.5-6200ea)
-![Paper Dates](https://img.shields.io/badge/Paper%20Dates-0.22.49-8e24aa)
-![Google Fonts Montserrat](https://img.shields.io/badge/Montserrat%20Font-0.4.1-9c27b0)
-![Expo Font](https://img.shields.io/badge/Expo%20Font-13.3.2-blue)
-![Expo Blur](https://img.shields.io/badge/Expo%20Blur-14.1.5-lightgrey)
-![Expo Haptics](https://img.shields.io/badge/Haptics-14.1.4-00bcd4)
-![Expo Splash Screen](https://img.shields.io/badge/Splash%20Screen-0.30.10-2196f3)
-![Flash List](https://img.shields.io/badge/Flash%20List-2.0.3-009688)
 ![Super Grid](https://img.shields.io/badge/Super%20Grid-6.0.2-teal)
 
 ---
@@ -71,7 +75,6 @@ Essa lista eu mandei o chatgpt fazer.
 ![Image Picker](https://img.shields.io/badge/Expo%20Image%20Picker-16.1.4-4caf50)
 ![Expo Image](https://img.shields.io/badge/Expo%20Image-2.4.0-009688)
 ![React Native SVG](https://img.shields.io/badge/react--native--svg-15.11.2-ff9800)
-![Vector Icons](https://img.shields.io/badge/Vector%20Icons-14.1.0-607d8b)
 
 ---
 
@@ -79,8 +82,6 @@ Essa lista eu mandei o chatgpt fazer.
 ![Supabase](https://img.shields.io/badge/Supabase-2.57.4-3fcf8e?logo=supabase&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-12.4.0-ffca28?logo=firebase)
 ![Axios](https://img.shields.io/badge/Axios-1.12.2-5a29e4)
-![base64-arraybuffer](https://img.shields.io/badge/base64--arraybuffer-1.0.2-777)
-![URL Polyfill](https://img.shields.io/badge/react--native--url--polyfill-2.0.0-999)
 
 ---
 
@@ -95,13 +96,11 @@ Essa lista eu mandei o chatgpt fazer.
 
 ### 🧠 Formulários e Estado
 ![React Hook Form](https://img.shields.io/badge/React%20Hook%20Form-7.62.0-ff4081)
-![Deepmerge](https://img.shields.io/badge/Deepmerge-4.3.1-607d8b)
 
 ---
 
 ### 💾 Armazenamento e Dados
 ![Async Storage](https://img.shields.io/badge/Async%20Storage-2.1.2-8bc34a)
-![tslib](https://img.shields.io/badge/tslib-2.8.1-8bc34a)
 
 ---
 
@@ -122,6 +121,6 @@ Essa lista eu mandei o chatgpt fazer.
 
 ## ✨ Minhas redes sociais
 
-@kamila_zoldyek no instagram
+@kamila_zoldyek no Instagram
 
 
