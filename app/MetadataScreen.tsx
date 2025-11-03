@@ -478,6 +478,7 @@ export default function MetadataScreen() {
             book_author: formData.book_author,
             book_publisher: formData.book_publisher,
             book_year: formData.book_year,
+            book_volume: book_volume_casted,
             book_synopsis: formData.book_synopsis,
             book_reading_status: formData.book_reading_status,
             book_kind: formData.book_kind,
