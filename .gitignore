@@ -38,3 +38,6 @@ yarn-error.*
 
 app-example
 google-srvices.json
+
+# Android build intermediates
+/android/app/build/
