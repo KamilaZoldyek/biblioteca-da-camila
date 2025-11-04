@@ -31,8 +31,6 @@ A ideia é eu poder catalogar meus livros impressos (principalmente meus mangás
 
 
 
-
-
 ## 🚀 Próximos Passos
 
 - Guardar os dados offline
@@ -43,6 +41,16 @@ A ideia é eu poder catalogar meus livros impressos (principalmente meus mangás
 - Edição de senha/recuperação de senha
 - Edição de Coleções
 - Publicação na loja
+
+
+## ✨ Download
+
+- Só existe a versão Android
+- Você provavelmente vai precisar liberar algumas permissões para instalar o app
+- Se não quiser criar um user, me chame no chat que eu te passo meu login.
+
+[Baixe clicando aqui](https://drive.google.com/drive/folders/1_4EMSlqUBKfD_CQqwsti__4wvAFNtqDg?usp=sharing)
+
 
 
 ## 🛠️ Tecnologias Utilizadas
